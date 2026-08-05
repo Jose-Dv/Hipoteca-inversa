@@ -72,7 +72,7 @@ El programa solicita el valor del inmueble, el porcentaje de desembolso, la tasa
 pytest tests/test_casos.py -v
 ```
 
-Los 10 casos de prueba (3 normales, 3 extraordinarios, 4 de error) están automatizados y todos pasan exitosamente sobre la lógica implementada en `hipoteca_inversa.py`.
+Los 10 casos de prueba (3 normales, 3 extraordinarios, 4 de error) están automatizados y todos pasan exitosamente sobre la lógica implementada en `Logica_Hipoteca_Inversa.py`.
 
 
 ## Metodología

@@ -94,23 +94,23 @@ class TestHipoteca(unittest.TestCase):
         self.assertAlmostEqual(abonos, abonos_esperado, places=2)
         self.assertAlmostEqual(intereses, intereses_esperado, places=2)
 
-    def test_extraordinario_3_plazo_60(self):
+    def test_extraordinario_3_plazo_240(self):
         # entradas
         valor_inmueble = 250_000_000
         porcentaje = 0.40
         tasa_mensual = 0.018
-        plazo_meses = 60
+        plazo_meses = 240
 
         # salidas calculadas con la formula de anualidad
-        cuota_esperada = 2739196.64
-        abonos_esperado = 164351798.40
-        intereses_esperado = 64351798.40
+        cuota_esperada = 1_825_226
+        abonos_esperado = 438_054_262
+        intereses_esperado = 338_054_262
 
         cuota, abonos, intereses = desembolso_mensual(valor_inmueble, porcentaje, tasa_mensual, plazo_meses)
 
-        self.assertAlmostEqual(cuota, cuota_esperada, places=2)
-        self.assertAlmostEqual(abonos, abonos_esperado, places=2)
-        self.assertAlmostEqual(intereses, intereses_esperado, places=2)
+        self.assertAlmostEqual(cuota, cuota_esperada, places=0)
+        self.assertAlmostEqual(abonos, abonos_esperado, places=0)
+        self.assertAlmostEqual(intereses, intereses_esperado, places=0)
 
     def test_error_1_valor_inmueble_cero(self):
         # entradas

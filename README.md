@@ -83,6 +83,7 @@ El repositorio no usa carpetas: todos los archivos están en la raíz del proyec
 Hipoteca-inversa/
 ├── Logica_Hipoteca_Inversa.py   # Lógica de negocio: cálculo de cuota, abonos, intereses y validaciones
 ├── Tests_Hipoteca_Inversa.py    # 10 casos de prueba automatizados (3 normales, 3 extraordinarios, 4 de error)
+├── EntrevistaJuanDavid.mp3      # Entrevista con el experto
 ├── casos_de_prueba.xlsx         # Matriz de los 10 casos de prueba en Excel
 ├── requirements.txt             # Dependencias del proyecto (pytest)
 └── README.md                    # Documentación del proyecto
@@ -97,5 +98,5 @@ Hipoteca-inversa/
 
 ## Autores
 
--Sebastian Velasquez
--Jose Diaz
+Sebastian Velasquez y
+Jose Diaz

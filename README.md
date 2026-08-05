@@ -44,18 +44,19 @@ Donde `i` es la tasa de interés mensual y `n` es el plazo en meses. Cuando la t
 
 ## Casos de prueba
 
-El proyecto incluye 10 casos de prueba construidos a partir de la entrevista con el experto: 3 normales, 3 extraordinarios y 4 de error. Están documentados en el libro de Excel `casos_prueba.xlsx` y automatizados como pruebas unitarias en `Tests_Hipoteca_Inversa.py`.
+El proyecto incluye 10 casos de prueba construidos a partir de la entrevista con el experto: 3 normales, 3 extraordinarios y 4 de error. Están documentados en el libro de Excel `casos_de_prueba.xlsx` y automatizados como pruebas unitarias en `Tests_Hipoteca_Inversa.py`.
 
 ## Requisitos
 
 - Python 3.10 o superior
-- `pytest` para ejecutar las pruebas unitarias
+- `pytest` para ejecutar las pruebas unitarias (ver `requirements.txt`)
 
 ## Instalación
 
 ```bash
 git clone https://github.com/Jose-Dv/Hipoteca-inversa
 cd Hipoteca-inversa
+pip install -r requirements.txt
 ```
 
 ## Uso
@@ -74,6 +75,18 @@ pytest Tests_Hipoteca_Inversa.py -v
 
 Los 10 casos de prueba (3 normales, 3 extraordinarios, 4 de error) están automatizados y todos pasan exitosamente sobre la lógica implementada en `Logica_Hipoteca_Inversa.py`.
 
+## Estructura del proyecto
+
+El repositorio no usa carpetas: todos los archivos están en la raíz del proyecto.
+
+```
+Hipoteca-inversa/
+├── Logica_Hipoteca_Inversa.py   # Lógica de negocio: cálculo de cuota, abonos, intereses y validaciones
+├── Tests_Hipoteca_Inversa.py    # 10 casos de prueba automatizados (3 normales, 3 extraordinarios, 4 de error)
+├── casos_de_prueba.xlsx         # Matriz de los 10 casos de prueba en Excel
+├── requirements.txt             # Dependencias del proyecto (pytest)
+└── README.md                    # Documentación del proyecto
+```
 
 ## Metodología
 

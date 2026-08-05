@@ -44,7 +44,7 @@ Donde `i` es la tasa de interés mensual y `n` es el plazo en meses. Cuando la t
 
 ## Casos de prueba
 
-El proyecto incluye 10 casos de prueba construidos a partir de la entrevista con el experto: 3 normales, 3 extraordinarios y 4 de error. Están documentados en el libro de Excel `casos_prueba_hipoteca_inversa.xlsx` y automatizados como pruebas unitarias en `tests/test_casos.py`.
+El proyecto incluye 10 casos de prueba construidos a partir de la entrevista con el experto: 3 normales, 3 extraordinarios y 4 de error. Están documentados en el libro de Excel `casos_prueba.xlsx` y automatizados como pruebas unitarias en `tests/test_casos.py`.
 
 ## Requisitos
 

@@ -44,7 +44,7 @@ Donde `i` es la tasa de interés mensual y `n` es el plazo en meses. Cuando la t
 
 ## Casos de prueba
 
-El proyecto incluye 10 casos de prueba construidos a partir de la entrevista con el experto: 3 normales, 3 extraordinarios y 4 de error. Están documentados en el libro de Excel `casos_prueba.xlsx` y automatizados como pruebas unitarias en `tests/test_casos.py`.
+El proyecto incluye 10 casos de prueba construidos a partir de la entrevista con el experto: 3 normales, 3 extraordinarios y 4 de error. Están documentados en el libro de Excel `casos_prueba.xlsx` y automatizados como pruebas unitarias en `Tests_Hipoteca_Inversa.py`.
 
 ## Requisitos
 
@@ -69,7 +69,7 @@ El programa solicita el valor del inmueble, el porcentaje de desembolso, la tasa
 ## Pruebas
 
 ```bash
-pytest tests/test_casos.py -v
+pytest Tests_Hipoteca_Inversa.py -v
 ```
 
 Los 10 casos de prueba (3 normales, 3 extraordinarios, 4 de error) están automatizados y todos pasan exitosamente sobre la lógica implementada en `Logica_Hipoteca_Inversa.py`.

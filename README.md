@@ -44,18 +44,6 @@ Donde `i` es la tasa de interés mensual y `n` es el plazo en meses. Cuando la t
 
 El proyecto incluye 10 casos de prueba construidos a partir de la entrevista con el experto: 3 normales, 3 extraordinarios y 4 de error. Están documentados en el libro de Excel `casos_prueba_hipoteca_inversa.xlsx` y automatizados como pruebas unitarias en `tests/test_casos.py`.
 
-| # | Caso | Tipo | Valor inmueble | % desembolso | Tasa mensual | Plazo | Resultado esperado |
-|---|------|------|-----------------|---------------|----------------|--------|----------------------|
-| 1 | Normal 1 | Normal | 300.000.000 | 40% | 1.2% | 120 | Cálculo exitoso |
-| 2 | Normal 2 | Normal | 150.000.000 | 50% | 0.9% | 60 | Cálculo exitoso |
-| 3 | Normal 3 | Normal | 500.000.000 | 30% | 1.5% | 48 | Cálculo exitoso |
-| 4 | Extraordinario 1 | Extraordinario | 200.000.000 | 50% | 0% | 36 | Tasa cero, sin intereses |
-| 5 | Extraordinario 2 | Extraordinario | 100.000.000 | 100% | 2.4% | 1 | Única disposición (pago único) |
-| 6 | Extraordinario 3 | Extraordinario | 250.000.000 | 40% | 1.8% | 60 | Cálculo exitoso en condición límite |
-| 7 | Error 1 | Error | 0 | 40% | 1.2% | 60 | ERROR: el valor del inmueble debe ser mayor que cero |
-| 8 | Error 2 | Error | 200.000.000 | 50% | 5% | 36 | ERROR: la tasa supera el máximo de usura (4% mensual) |
-| 9 | Error 3 | Error | 150.000.000 | 30% | 1.2% | 0 | ERROR: el número de cuotas debe estar entre 1 y 240 |
-| 10 | Error 4 | Error | 150.000.000 | 30% | 1.2% | -12 | ERROR: el número de cuotas debe estar entre 1 y 240 |
 
 ## Requisitos
 
@@ -108,6 +96,7 @@ simulador-hipoteca-inversa/
 3. Se implementó la lógica de negocio en Python siguiendo exactamente la fórmula y las reglas de validación suministradas por el experto.
 4. Se automatizaron los 10 casos de prueba como tests unitarios con `pytest` para verificar que el aplicativo cumple lo esperado.
 
-## Autor
+## Autores
 
-Sebastian Velasquez - Ingeniería de Software
+Sebastian Velasquez 
+Jose Diaz

@@ -97,6 +97,5 @@ Hipoteca-inversa/
 
 ## Autores
 
-Sebastian Velasquez
-...
-Jose Diaz
+-Sebastian Velasquez
+-Jose Diaz

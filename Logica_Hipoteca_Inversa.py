@@ -1,18 +1,16 @@
 # Aqui se encuentra la logica de el proyecto "Calculadora de Hipoteca Inversa"
 
-def desembolso_mensual(valor_inmueble: float, porcentaje: float, tasa_mensual: float, plazo_meses: int) -> tuple[float, float, float]:
-
-    """El proposito de esta funcion, es calcular el desembolso mensual por parte
-        de el banco a la persono que esta solicitando dicho servicio recibiendo
-        los datos tales como el plazo, """
+def calcular_cuota_mensual(valor_inmueble: float, porcentaje: float, tasa_mensual: float, plazo_meses: int) -> float:
+    """ Calcula la cuota mensual que el banco le pagaría a una persona que toma una hipoteca inversa,
+    usando como base un porcentaje del valor del inmueble y la fórmula de anualidad. """
     
     V = valor_inmueble * porcentaje
     i = tasa_mensual
     n = plazo_meses
-    cuota = (V * i) / (1 - (1 + i) ** -n)
 
-    total_abonos = cuota * n
-    total_intereses = total_abonos - V
+    if i == 0:
+        cuota_mensual = V / n
+    else:
+        cuota_mensual = V * i / (1 - (1 + i) ** -n)
 
-    return cuota, total_abonos, total_intereses
-
+    return f"La cuota mensual por parte del banco al usuario es de: {cuota_mensual}"

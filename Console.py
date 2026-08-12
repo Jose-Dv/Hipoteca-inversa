@@ -1,4 +1,4 @@
-# consola de el proyecto de hipoteca inversa
+#Consola de el proyecto de hipoteca inversa
 
 import Logica_Hipoteca_Inversa
 
@@ -14,5 +14,11 @@ try:
     print("Cuota mensual:", cuota)
     print("Total abonos:", abonos)
     print("Total intereses:", intereses)
-except Logica_Hipoteca_Inversa.HipotecaInversaError as error:
+except Logica_Hipoteca_Inversa.ValorPropiedad0 as error:
+    print(error)
+except Logica_Hipoteca_Inversa.HipotecaUsura as error:
+    print(error)
+except Logica_Hipoteca_Inversa.PlazoMayor240 as error:
+    print(error)
+except Logica_Hipoteca_Inversa.PlazoMenorIgual0 as error:
     print(error)

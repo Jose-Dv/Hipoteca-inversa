@@ -2,7 +2,7 @@
 
 Se requiere una aplicación que calcule la cuota mensual que el banco pagaría a una persona que tome una hipoteca inversa, entregando su inmueble en garantía a cambio de una renta mensual durante un plazo pactado.
 
-El proyecto surge de una entrevista con un experto en el tema (grabada en audio como evidencia académica, `EntrevistaJuanDavid.mp3`), de la cual se extrajeron las variables de entrada, las variables de salida, la fórmula financiera y las reglas de negocio que rigen el cálculo.
+El proyecto surge de una entrevista con un experto en el tema (grabada en audio como evidencia académica, (`EntrevistaJuanDavid.mp3`), de la cual se extrajeron las variables de entrada, las variables de salida, la fórmula financiera y las reglas de negocio que rigen el cálculo.
 
 ## Descripción del problema
 

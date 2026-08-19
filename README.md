@@ -81,18 +81,6 @@ python -m unittest Tests_Hipoteca_Inversa -v
 
 Los 10 casos de prueba (3 normales, 3 extraordinarios, 4 de error) están automatizados con `unittest` y todos pasan exitosamente sobre la lógica implementada en `Logica_Hipoteca_Inversa.py`.
 
-## Estructura del proyecto
-
-El repositorio no usa carpetas: todos los archivos están en la raíz del proyecto.
-
-```
-Hipoteca-inversa/
-├── Logica_Hipoteca_Inversa.py   # Lógica de negocio: cálculo de cuota, abonos, intereses y validaciones
-├── Tests_Hipoteca_Inversa.py    # 10 casos de prueba automatizados (3 normales, 3 extraordinarios, 4 de error)
-├── EntrevistaJuanDavid.mp3      # Entrevista con el experto
-├── casos_de_prueba.xlsx         # Matriz de los 10 casos de prueba en Excel
-└── README.md                    # Documentación del proyecto
-```
 
 ## Metodología
 

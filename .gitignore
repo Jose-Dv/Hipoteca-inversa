@@ -1,1 +1,8 @@
 __pycache__
+venv
+build
+dist
+.vscode/
+*.pyc
+*.spec
+!HipotecaInversa.spec

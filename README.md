@@ -139,6 +139,10 @@ Ran 10 tests in 0.00Xs
 OK
 ```
 
+## Autores
+
+- **Pedro Hernandez**: interfaz gráfica con Kivy (`src/view/interfaz_kivy.py`) y el controlador compartido entre las vistas (`src/controller/hipoteca_controller.py`).
+
 ## Licencia
 
 Este proyecto se distribuye bajo la licencia MIT. Ver el archivo [LICENSE](LICENSE) para más detalles.

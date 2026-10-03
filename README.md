@@ -170,3 +170,14 @@ El ejecutable queda en `dist\HipotecaInversa\HipotecaInversa.exe`, junto con los
 ## Licencia
 
 Este proyecto se distribuye bajo la licencia MIT. Ver el archivo [LICENSE](LICENSE) para más detalles.
+
+
+### 6. Generar el ejecutable en Android.
+<img width="1200" height="1600" alt="Imagen 1 cc" src="https://github.com/user-attachments/assets/e06795f5-a4a5-4426-bb8c-080251e153af" />
+En esta imagen se puede observar como corre el codigo en el cual se descargarian los dependencias de linux en google colab. La IA me 
+recomendo esta opcion porque era mas facil y no habia riesgo de algún virus, como si lo era descargando archivos o apps de google.
+
+<img width="1600" height="1200" alt="imagen 2 cc" src="https://github.com/user-attachments/assets/41404d45-a869-4af4-bdd3-33ab7c474184" />
+Y en esta imagen se puede observar como se esta descargando las dependencias, lo intente varias veces y algunas veces se quedaba en bucle 
+infinito o se reiniciaba, por donde el profesor dijo que lo hicieramos no me dio, intentamos de muchas otras formas pero no nos dio.
+Puede ser temas del intenet, o de la capacidad de nuestros computadores.

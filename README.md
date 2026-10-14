@@ -84,6 +84,12 @@ Puedes verificar tu versión de Python con:
 python --version
 ```
 
+-Asegurese de tener una base de datos PostgreSQL y sus respectivos datos de acceso
+
+-Copie el archivo secret_config_sample.py como secret_config.py y establezca en este archivo los datos de conexion a su base de datos.
+
+-Antes de ejecutar la aplicaicón por primera vez, debe correr las pruebas unitarias, para que se creen las tablas en la base de datos
+
 ## Cómo ejecutar el proyecto
 
 ### 1. Clonar el repositorio

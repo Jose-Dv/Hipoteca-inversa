@@ -1,3 +1,8 @@
+-- Datos de prueba opcionales (PostgreSQL).
+-- Ejecutar DESPUES de crear las tablas (las pruebas unitarias las crean).
+-- Las pruebas unitarias borran y recrean las tablas, asi que estos datos
+-- se pierden cada vez que se corren.
+
 -- USUARIOS
 INSERT INTO usuarios (nombre, correo, password, rol)
 VALUES
@@ -35,18 +40,8 @@ INSERT INTO solicitudes (
     estado
 )
 VALUES
-(1, CURDATE(), 'PENDIENTE'),
-(2, CURDATE(), 'APROBADA');
-
--- VALUACIONES
-INSERT INTO valuaciones (
-    id_vivienda,
-    valor_estimado,
-    fecha_valuacion
-)
-VALUES
-(1, 460000000, CURDATE()),
-(2, 390000000, CURDATE());
+(1, CURRENT_DATE, 'PENDIENTE'),
+(2, CURRENT_DATE, 'APROBADA');
 
 -- HIPOTECAS
 INSERT INTO hipotecas (
@@ -57,25 +52,5 @@ INSERT INTO hipotecas (
     fecha_inicio
 )
 VALUES
-(1, 1, 230000000, 7.50, CURDATE()),
-(2, 2, 190000000, 7.20, CURDATE());
-
--- PAGOS
-INSERT INTO pagos (
-    id_hipoteca,
-    valor_pago,
-    fecha_pago
-)
-VALUES
-(1, 1500000, CURDATE()),
-(2, 1200000, CURDATE());
-
--- BENEFICIARIOS
-INSERT INTO beneficiarios (
-    id_cliente,
-    nombre,
-    parentesco
-)
-VALUES
-(1, 'Carlos Pérez', 'Hijo'),
-(2, 'Ana Gómez', 'Hija');
+(1, 1, 230000000, 7.50, CURRENT_DATE),
+(2, 2, 190000000, 7.20, CURRENT_DATE);

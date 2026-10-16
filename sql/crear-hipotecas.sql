@@ -1,5 +1,5 @@
-CREATE TABLE hipotecas (
-    id_hipoteca INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS hipotecas (
+    id_hipoteca SERIAL PRIMARY KEY,
     id_cliente INT,
     id_vivienda INT,
     monto_aprobado DECIMAL(15,2),

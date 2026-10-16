@@ -1,5 +1,5 @@
-CREATE TABLE usuarios (
-    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS usuarios (
+    id_usuario SERIAL PRIMARY KEY,
     nombre VARCHAR(100),
     correo VARCHAR(100),
     password VARCHAR(255),

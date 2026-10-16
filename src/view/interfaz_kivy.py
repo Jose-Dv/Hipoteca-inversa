@@ -1,23 +1,26 @@
-"""Interfaz gráfica en Kivy para el cálculo de hipoteca inversa.
+"""Interfaz gráfica en Kivy para la aplicación de hipoteca inversa.
 
 Construida siguiendo los patrones del proyecto de ejemplo
 https://github.com/ProfeBill/hello-kivy:
 
 - ``BoxLayout`` (orientation="vertical"/"horizontal") para organizar los
   controles en filas, igual que en ``input.py``.
-- ``TextInput`` para capturar los datos numéricos del usuario.
-- ``Button.bind(on_press=...)`` para conectar el botón con un callback,
+- ``TextInput`` para capturar los datos del usuario.
+- ``Button.bind(on_press=...)`` para conectar cada botón con un callback,
   igual que en ``events.py``.
-- ``Label`` para mostrar el resultado del cálculo.
+- ``Label`` para mostrar resultados y mensajes de error.
+
+La ventana tiene tres pestañas: calcular hipoteca, registrar cliente y
+buscar cliente.
 
 Esta vista no contiene lógica de negocio ni de validación de formato:
-solo recoge los datos y se los entrega al controlador
-(`src.controller.hipoteca_controller`), el mismo que usa la interfaz de
-consola (`console.py`), y muestra el resultado o el mensaje de error que
-este le devuelva.
+solo recoge los datos y se los entrega a los controladores
+(`src.controller.hipoteca_controller` y `src.controller.cliente_controller`),
+los mismos que usa la interfaz de consola (`console.py`), y muestra el
+resultado o el mensaje de error que estos le devuelvan.
 
 Requisitos:
-    pip install "kivy[base]"
+    pip install -r requirements.txt
 
 Ejecución: se puede lanzar de cualquier forma (`python interfaz_kivy.py`,
 `python src/view/interfaz_kivy.py`, `python -m src.view.interfaz_kivy`, o
@@ -38,8 +41,10 @@ from kivy.app import App  # noqa: E402
 from kivy.uix.boxlayout import BoxLayout  # noqa: E402
 from kivy.uix.button import Button  # noqa: E402
 from kivy.uix.label import Label  # noqa: E402
+from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem  # noqa: E402
 from kivy.uix.textinput import TextInput  # noqa: E402
 
+from src.controller import cliente_controller as clientes  # noqa: E402
 from src.controller import hipoteca_controller as controlador  # noqa: E402
 
 
@@ -59,15 +64,45 @@ def _fila_de_entrada(texto_etiqueta):
     return fila, entrada
 
 
+def _etiqueta_resultado(texto_inicial):
+    """Label para mostrar resultados o mensajes de error."""
+    etiqueta = Label(text=texto_inicial, halign="center", valign="middle")
+    etiqueta.bind(size=etiqueta.setter("text_size"))
+    return etiqueta
+
+
+def _contenedor():
+    return BoxLayout(orientation="vertical", padding=20, spacing=12)
+
+
 class HipotecaInversaApp(App):
     """Aplicación Kivy: cada app desciende de ``kivy.app.App``."""
 
-    title = "Calculadora de Hipoteca Inversa"
+    title = "Hipoteca Inversa"
 
     def build(self):
         # build() crea y retorna el widget contenedor de toda la ventana,
-        # tal como se hace en hello.py, input.py y events.py.
-        contenedor = BoxLayout(orientation="vertical", padding=20, spacing=12)
+        # tal como se hace en hello.py, input.py y events.py. Aquí es un
+        # TabbedPanel: la pestaña por defecto calcula la hipoteca y se
+        # agregan dos pestañas para registrar y buscar clientes.
+        panel = TabbedPanel(do_default_tab=True, default_tab_text="Calcular hipoteca")
+        panel.default_tab_content = self._construir_calculo()
+
+        for titulo, contenido in (
+            ("Registrar cliente", self._construir_registro()),
+            ("Buscar cliente", self._construir_busqueda()),
+        ):
+            pestana = TabbedPanelItem(text=titulo)
+            pestana.add_widget(contenido)
+            panel.add_widget(pestana)
+
+        return panel
+
+    # ------------------------------------------------------------------
+    # Pestaña 1: calcular hipoteca
+    # ------------------------------------------------------------------
+    def _construir_calculo(self):
+        contenedor = _contenedor()
 
         contenedor.add_widget(Label(
             text="Calculadora de Hipoteca Inversa",
@@ -90,8 +125,7 @@ class HipotecaInversaApp(App):
         boton_calcular.bind(on_press=self.calcular)
         contenedor.add_widget(boton_calcular)
 
-        self.resultado = Label(text="Ingrese los datos y presione Calcular.", halign="center")
-        self.resultado.bind(size=self.resultado.setter("text_size"))
+        self.resultado = _etiqueta_resultado("Ingrese los datos y presione Calcular.")
         contenedor.add_widget(self.resultado)
 
         return contenedor
@@ -121,6 +155,109 @@ class HipotecaInversaApp(App):
             f"Cuota mensual: {resultado.cuota_mensual:,.2f}\n"
             f"Total abonos: {resultado.total_abonos:,.2f}\n"
             f"Total intereses: {resultado.total_intereses:,.2f}"
+        )
+
+    # ------------------------------------------------------------------
+    # Pestaña 2: registrar cliente (insertar datos)
+    # ------------------------------------------------------------------
+    def _construir_registro(self):
+        contenedor = _contenedor()
+
+        fila_cedula, self.reg_cedula = _fila_de_entrada("Cédula:")
+        fila_nombres, self.reg_nombres = _fila_de_entrada("Nombres:")
+        fila_apellidos, self.reg_apellidos = _fila_de_entrada("Apellidos:")
+        fila_nacimiento, self.reg_nacimiento = _fila_de_entrada("Nacimiento (AAAA-MM-DD):")
+        fila_telefono, self.reg_telefono = _fila_de_entrada("Teléfono:")
+        fila_direccion, self.reg_direccion = _fila_de_entrada("Dirección:")
+
+        self._campos_registro = (
+            self.reg_cedula, self.reg_nombres, self.reg_apellidos,
+            self.reg_nacimiento, self.reg_telefono, self.reg_direccion,
+        )
+
+        for fila in (fila_cedula, fila_nombres, fila_apellidos,
+                     fila_nacimiento, fila_telefono, fila_direccion):
+            contenedor.add_widget(fila)
+
+        boton_guardar = Button(text="Guardar cliente", size_hint_y=None, height=56)
+        boton_guardar.bind(on_press=self.guardar_cliente)
+        contenedor.add_widget(boton_guardar)
+
+        self.resultado_registro = _etiqueta_resultado(
+            "Complete los datos y presione Guardar cliente."
+        )
+        contenedor.add_widget(self.resultado_registro)
+
+        return contenedor
+
+    def guardar_cliente(self, instance):
+        """Callback del botón Guardar cliente: delega todo en el controlador."""
+        try:
+            cliente = clientes.insertar_cliente(
+                self.reg_cedula.text,
+                self.reg_nombres.text,
+                self.reg_apellidos.text,
+                self.reg_nacimiento.text,
+                self.reg_telefono.text,
+                self.reg_direccion.text,
+            )
+        except clientes.ErrorCliente as error:
+            self.resultado_registro.text = str(error)
+            return
+
+        self.resultado_registro.text = f"Cliente guardado con id {cliente.id_cliente}."
+        for campo in self._campos_registro:
+            campo.text = ""
+
+    # ------------------------------------------------------------------
+    # Pestaña 3: buscar cliente (consultar datos)
+    # ------------------------------------------------------------------
+    def _construir_busqueda(self):
+        contenedor = _contenedor()
+
+        fila_cedula, self.bus_cedula = _fila_de_entrada("Buscar por cédula:")
+        boton_cedula = Button(text="Buscar por cédula", size_hint_y=None, height=48)
+        boton_cedula.bind(on_press=self.buscar_por_cedula)
+
+        fila_texto, self.bus_texto = _fila_de_entrada("Buscar por nombre o apellido:")
+        boton_texto = Button(text="Buscar por nombre o apellido", size_hint_y=None, height=48)
+        boton_texto.bind(on_press=self.buscar_por_texto)
+
+        for widget in (fila_cedula, boton_cedula, fila_texto, boton_texto):
+            contenedor.add_widget(widget)
+
+        self.resultado_busqueda = _etiqueta_resultado(
+            "Escriba una cédula o un nombre y presione el botón de búsqueda."
+        )
+        contenedor.add_widget(self.resultado_busqueda)
+
+        return contenedor
+
+    def buscar_por_cedula(self, instance):
+        try:
+            cliente = clientes.buscar_cliente_por_cedula(self.bus_cedula.text)
+        except clientes.ErrorCliente as error:
+            self.resultado_busqueda.text = str(error)
+            return
+
+        if cliente is None:
+            self.resultado_busqueda.text = "No se encontró ningún cliente con esa cédula."
+        else:
+            self.resultado_busqueda.text = clientes.formatear_cliente(cliente)
+
+    def buscar_por_texto(self, instance):
+        try:
+            encontrados = clientes.buscar_clientes(self.bus_texto.text)
+        except clientes.ErrorCliente as error:
+            self.resultado_busqueda.text = str(error)
+            return
+
+        if not encontrados:
+            self.resultado_busqueda.text = "No se encontraron clientes."
+            return
+
+        self.resultado_busqueda.text = "\n\n".join(
+            clientes.formatear_cliente(cliente) for cliente in encontrados
         )
 
 

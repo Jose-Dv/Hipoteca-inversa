@@ -1,4 +1,7 @@
+# Necesaria para guardar y buscar clientes en PostgreSQL
+# (src/controller/cliente_controller.py y tests/tests_cliente_controller.py).
+psycopg2-binary>=2.9
+
 # Dependencia opcional: solo necesaria para ejecutar la interfaz gráfica
-# (src/view/interfaz_kivy.py). La interfaz de consola no requiere nada
-# fuera de la librería estándar de Python.
+# (src/view/interfaz_kivy.py). La interfaz de consola no la requiere.
 kivy[base]>=2.3.0

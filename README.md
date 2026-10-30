@@ -2,6 +2,8 @@
 
 Aplicación en Python para simular el cálculo de una **hipoteca inversa**: la cuota mensual que el banco pagaría a una persona que toma una hipoteca inversa. Tiene interfaz de consola, interfaz gráfica con Kivy y una aplicación web hecha con Flask y Blueprints que guarda cada consulta en una base de datos PostgreSQL (Neon) y permite buscarlas por nombre. Sigue principios de código limpio y una arquitectura por capas (Modelo - Vista - Controlador).
 
+**Aplicación publicada:** [https://hipoteca-inversa.onrender.com/](https://hipoteca-inversa.onrender.com/). Como usa el plan gratuito de Render, la primera carga después de un rato sin visitas puede tardar unos segundos.
+
 ## Estructura del proyecto
 
 ```
@@ -193,11 +195,13 @@ python -m unittest tests/tests_hipoteca_inversa.py
 
 1. En Neon, abra la rama que usará la web publicada (por ejemplo `production`), pulse **Connect**, desactive *Connection pooling* y copie el host, la base, el usuario y la contraseña.
 2. En Render, cree un **Web Service** conectado a este repositorio, rama `main`.
-3. Configure: *Build Command* `pip install -r requirements.txt`, *Start Command* `gunicorn app:app` y el tipo de instancia **Free**.
+3. Configure: *Build Command* `pip install -r requirements.txt`, *Start Command* `gunicorn app:app` (también sirve `flask run -p 10000 -h 0.0.0.0`) y el tipo de instancia **Free**.
 4. En *Environment Variables* agregue `PGHOST`, `PGDATABASE`, `PGUSER` y `PGPASSWORD` con los datos de Neon (y `PGPORT` solo si no usa el 5432).
 5. Pulse **Deploy**. La dirección pública de la aplicación aparece en el panel del servicio.
 
 Render usa el archivo `.python-version` para elegir la versión de Python. No suba nunca la contraseña al repositorio: va solo en las variables de entorno de Render.
+
+La aplicación de este proyecto está publicada en [https://hipoteca-inversa.onrender.com/](https://hipoteca-inversa.onrender.com/).
 
 ## Autores
 

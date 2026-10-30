@@ -1,15 +1,11 @@
-"""Pruebas unitarias del cálculo de desembolso mensual de la hipoteca inversa."""
-
 import unittest
 from src.model import logica_hipoteca_inversa
 
 
 class TestHipoteca(unittest.TestCase):
-    """Casos normales, extraordinarios y de error de ``desembolso_mensual``."""
 
     # Casos normales
     def test_normal_1(self):
-        """Inmueble de 300 millones, 40 % financiado, 1.2 % mensual, 120 meses."""
         valor_inmueble = 300_000_000
         porcentaje = 0.40
         tasa_mensual = 0.012
@@ -29,7 +25,6 @@ class TestHipoteca(unittest.TestCase):
         self.assertAlmostEqual(intereses, intereses_esperado, places=2)
 
     def test_normal_2(self):
-        """Inmueble de 150 millones, 50 % financiado, 0.9 % mensual, 60 meses."""
         valor_inmueble = 150_000_000
         porcentaje = 0.50
         tasa_mensual = 0.009
@@ -49,7 +44,6 @@ class TestHipoteca(unittest.TestCase):
         self.assertAlmostEqual(intereses, intereses_esperado, places=2)
 
     def test_normal_3(self):
-        """Inmueble de 500 millones, 30 % financiado, 1.5 % mensual, 48 meses."""
         valor_inmueble = 500_000_000
         porcentaje = 0.30
         tasa_mensual = 0.015
@@ -70,7 +64,6 @@ class TestHipoteca(unittest.TestCase):
 
     # Casos extraordinarios
     def test_extraordinario_tasa_cero(self):
-        """Con tasa cero no hay intereses: el valor financiado se divide en cuotas iguales."""
         valor_inmueble = 200_000_000
         porcentaje = 0.50
         tasa_mensual = 0.0
@@ -90,7 +83,6 @@ class TestHipoteca(unittest.TestCase):
         self.assertAlmostEqual(intereses, intereses_esperado, places=2)
 
     def test_extraordinario_unica_disposicion(self):
-        """Con 100 % financiado y un solo mes, se paga todo el capital más un mes de interés."""
         valor_inmueble = 100_000_000
         porcentaje = 1.00
         tasa_mensual = 0.024
@@ -110,7 +102,6 @@ class TestHipoteca(unittest.TestCase):
         self.assertAlmostEqual(intereses, intereses_esperado, places=2)
 
     def test_extraordinario_plazo_maximo(self):
-        """Con el plazo máximo permitido (240 meses) el cálculo sigue siendo válido."""
         valor_inmueble = 250_000_000
         porcentaje = 0.40
         tasa_mensual = 0.018
@@ -131,25 +122,21 @@ class TestHipoteca(unittest.TestCase):
 
     # Casos de error
     def test_error_valor_inmueble_cero(self):
-        """Un inmueble de valor cero lanza ValorPropiedadCero."""
         parametros = logica_hipoteca_inversa.ParametrosHipoteca(0, 0.40, 0.012, 60)
         with self.assertRaises(logica_hipoteca_inversa.ValorPropiedadCero):
             logica_hipoteca_inversa.desembolso_mensual(parametros)
 
     def test_error_tasa_usura(self):
-        """Una tasa mensual de 5 % supera el límite de usura y lanza HipotecaUsura."""
         parametros = logica_hipoteca_inversa.ParametrosHipoteca(200_000_000, 0.50, 0.05, 36)
         with self.assertRaises(logica_hipoteca_inversa.HipotecaUsura):
             logica_hipoteca_inversa.desembolso_mensual(parametros)
 
     def test_error_plazo_cero(self):
-        """Un plazo de cero meses lanza PlazoMenorIgualCero."""
         parametros = logica_hipoteca_inversa.ParametrosHipoteca(150_000_000, 0.30, 0.012, 0)
         with self.assertRaises(logica_hipoteca_inversa.PlazoMenorIgualCero):
             logica_hipoteca_inversa.desembolso_mensual(parametros)
 
     def test_error_plazo_mayor_240(self):
-        """Un plazo de 250 meses supera el máximo y lanza PlazoMayorPermitido."""
         parametros = logica_hipoteca_inversa.ParametrosHipoteca(150_000_000, 0.30, 0.012, 250)
         with self.assertRaises(logica_hipoteca_inversa.PlazoMayorPermitido):
             logica_hipoteca_inversa.desembolso_mensual(parametros)

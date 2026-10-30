@@ -22,8 +22,6 @@ class HipotecaInversaError(Exception):
 
 
 class ValorPropiedadCero(HipotecaInversaError):
-    """El valor del inmueble es menor o igual a cero."""
-
     def __init__(self, valor_inmueble: float) -> None:
         self.valor_inmueble = valor_inmueble
         super().__init__(
@@ -33,8 +31,6 @@ class ValorPropiedadCero(HipotecaInversaError):
 
 
 class HipotecaUsura(HipotecaInversaError):
-    """La tasa mensual supera el límite de usura."""
-
     def __init__(self, tasa_mensual: float, tasa_maxima: float) -> None:
         self.tasa_mensual = tasa_mensual
         self.tasa_maxima = tasa_maxima
@@ -45,8 +41,6 @@ class HipotecaUsura(HipotecaInversaError):
 
 
 class PlazoMayorPermitido(HipotecaInversaError):
-    """El plazo en meses excede el máximo permitido."""
-
     def __init__(self, plazo_meses: int, plazo_maximo: int) -> None:
         self.plazo_meses = plazo_meses
         self.plazo_maximo = plazo_maximo
@@ -56,8 +50,6 @@ class PlazoMayorPermitido(HipotecaInversaError):
 
 
 class PlazoMenorIgualCero(HipotecaInversaError):
-    """El plazo en meses es menor que el mínimo permitido (cero o negativo)."""
-
     def __init__(self, plazo_meses: int, plazo_minimo: int, plazo_maximo: int) -> None:
         self.plazo_meses = plazo_meses
         self.plazo_minimo = plazo_minimo
@@ -69,19 +61,16 @@ class PlazoMenorIgualCero(HipotecaInversaError):
 
 
 def validar_valor_inmueble(valor_inmueble: float) -> None:
-    """Lanza ValorPropiedadCero si el valor del inmueble no es positivo."""
     if valor_inmueble <= 0:
         raise ValorPropiedadCero(valor_inmueble)
 
 
 def validar_tasa_mensual(tasa_mensual: float) -> None:
-    """Lanza HipotecaUsura si la tasa mensual supera el máximo permitido."""
     if tasa_mensual > TASA_MAXIMA_USURA:
         raise HipotecaUsura(tasa_mensual, TASA_MAXIMA_USURA)
 
 
 def validar_plazo_meses(plazo_meses: int) -> None:
-    """Lanza una excepción si el plazo está fuera del rango permitido."""
     if plazo_meses > PLAZO_MAXIMO_MESES:
         raise PlazoMayorPermitido(plazo_meses, PLAZO_MAXIMO_MESES)
     if plazo_meses < PLAZO_MINIMO_MESES:
@@ -96,12 +85,10 @@ def validar_parametros(parametros: ParametrosHipoteca) -> None:
 
 
 def calcular_monto_prestamo(parametros: ParametrosHipoteca) -> float:
-    """Valor financiado: el valor del inmueble multiplicado por el porcentaje."""
     return parametros.valor_inmueble * parametros.porcentaje
 
 
 def calcular_cuota_mensual(parametros: ParametrosHipoteca) -> float:
-    """Cuota mensual con la fórmula de anualidad (división simple si la tasa es cero)."""
     monto_prestamo = calcular_monto_prestamo(parametros)
     if parametros.tasa_mensual == 0:
         return monto_prestamo / parametros.plazo_meses
@@ -110,12 +97,10 @@ def calcular_cuota_mensual(parametros: ParametrosHipoteca) -> float:
 
 
 def calcular_total_abonos(parametros: ParametrosHipoteca) -> float:
-    """Suma de todas las cuotas pagadas durante el plazo."""
     return calcular_cuota_mensual(parametros) * parametros.plazo_meses
 
 
 def calcular_total_intereses(parametros: ParametrosHipoteca) -> float:
-    """Diferencia entre el total de abonos y el valor financiado."""
     return calcular_total_abonos(parametros) - calcular_monto_prestamo(parametros)
 
 

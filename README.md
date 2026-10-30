@@ -1,6 +1,6 @@
 # Hipoteca Inversa
 
-Aplicación en Python para simular el cálculo de una **hipoteca inversa** y para **registrar y buscar clientes** en una base de datos PostgreSQL, siguiendo principios de código limpio y arquitectura por capas (Modelo - Vista - Controlador). Tiene interfaz de consola y una interfaz gráfica con Kivy.
+Aplicación en Python para simular el cálculo de una **hipoteca inversa**: la cuota mensual que el banco pagaría a una persona que toma una hipoteca inversa. Tiene interfaz de consola, interfaz gráfica con Kivy y una aplicación web que guarda cada consulta en una base de datos PostgreSQL (Neon) y permite buscarlas por nombre. Sigue principios de código limpio y una arquitectura por capas (Modelo - Vista - Controlador).
 
 ## Estructura del proyecto
 
@@ -9,63 +9,53 @@ Hipoteca-inversa/
 ├── doc/
 │   ├── EntrevistaJuanDavid.mp3      # Entrevista de levantamiento de requisitos
 │   └── CasosPrueba.xlsx             # Casos de prueba documentados
-├── sql/
-│   ├── crear-clientes.sql           # Scripts de creación de tablas (PostgreSQL)
-│   ├── crear-hipotecas.sql
-│   ├── crear-solicitudes.sql
-│   ├── crear-usuarios.sql
-│   ├── crear-viviendas.sql
-│   └── insertar-datos-prueba.sql    # Datos de ejemplo (opcional)
 ├── src/
 │   ├── controller/
 │   │   ├── __init__.py
 │   │   ├── hipoteca_controller.py   # Parseo de datos y manejo de errores del cálculo
-│   │   └── cliente_controller.py    # Crear/borrar tablas, insertar y buscar clientes
+│   │   └── consultas_controller.py  # Crear/borrar tabla, insertar y buscar consultas
 │   ├── model/
 │   │   ├── __init__.py
 │   │   ├── logica_hipoteca_inversa.py  # Lógica de negocio y cálculos financieros
-│   │   └── cliente.py               # Clase Cliente (entidad de la tabla clientes)
+│   │   └── consulta.py              # Clase Consulta (una fila de la tabla consultas)
 │   └── view/
 │       ├── __init__.py
-│       ├── console.py               # Interfaz de consola (menú)
-│       └── interfaz_kivy.py         # Interfaz gráfica con Kivy (3 pestañas)
+│       ├── console.py               # Interfaz de consola
+│       └── interfaz_kivy.py         # Interfaz gráfica con Kivy
+├── templates/
+│   └── index.html                   # Página web: formulario, búsqueda e historial
 ├── tests/
 │   ├── __init__.py
 │   ├── tests_hipoteca_inversa.py    # Pruebas unitarias de la lógica de cálculo
-│   └── tests_cliente_controller.py  # Pruebas de insertar y buscar clientes (con BD)
+│   └── tests_consultas_controller.py  # Pruebas de insertar y buscar (con BD)
+├── app.py                           # Servidor local de la aplicación web
 ├── .gitignore
 ├── LICENSE
-├── requirements.txt                 # psycopg2-binary (BD) y Kivy (interfaz gráfica)
+├── requirements.txt                 # psycopg2-binary, Flask y Kivy
 ├── secret_config_sample.py          # Plantilla de la configuración de la BD
 └── README.md
 ```
 
 ### Descripción de la arquitectura
 
-El proyecto sigue una separación de responsabilidades tipo **MVC**:
-
-- **`model`**: `logica_hipoteca_inversa.py` contiene la lógica de cálculo de la hipoteca inversa (validaciones, fórmulas financieras, reglas de negocio y excepciones propias del dominio). `cliente.py` define la clase `Cliente`, que representa una fila de la tabla `clientes`. Ninguno depende de cómo se muestren los datos.
-- **`view`**: expone la interfaz de consola (`console.py`) y una interfaz gráfica construida con [Kivy](https://kivy.org/) (`interfaz_kivy.py`). Ambas ofrecen calcular una hipoteca, registrar un cliente y buscar clientes. Ninguna contiene lógica de negocio.
-- **`controller`**: intermediario entre `view` y `model`/base de datos.
-  - `hipoteca_controller.py` convierte el texto ingresado en los tipos del modelo (tolerando formatos como `1,2` o `300.000.000`) y traduce cualquier error a un mensaje legible mediante `ErrorCalculoHipoteca`.
-  - `cliente_controller.py` valida los datos del cliente, accede a PostgreSQL (con `psycopg2`) y expone `crear_tablas`, `borrar_tablas`, `insertar_cliente`, `buscar_cliente_por_cedula` y `buscar_clientes`. Cualquier problema se informa con `ErrorCliente`.
-- **`tests`**: pruebas unitarias del cálculo y de insertar/buscar clientes.
-- **`sql`**: scripts para crear las tablas y datos de prueba.
-- **`doc`**: soporte documental del proyecto (entrevista de requisitos y casos de prueba).
+- **`model`**: `logica_hipoteca_inversa.py` contiene la lógica de cálculo (validaciones, fórmulas financieras, reglas de negocio y excepciones propias). `consulta.py` define la clase `Consulta`: los datos ingresados, el resultado y el nombre opcional. Ninguno depende de cómo se muestren los datos.
+- **`view`**: la consola (`console.py`), la interfaz gráfica (`interfaz_kivy.py`) y la web (`app.py` con `templates/index.html`). Ninguna contiene lógica de negocio.
+- **`controller`**: intermediario entre las vistas y el modelo o la base de datos.
+  - `hipoteca_controller.py` convierte el texto ingresado en los tipos del modelo (tolerando formatos como `1,2` o `300.000.000`) y traduce cualquier error a un mensaje legible mediante `ErrorCalculoHipoteca`. Lo usan la consola y Kivy.
+  - `consultas_controller.py` es el único que habla con PostgreSQL (con `psycopg2`). Expone `crear_tabla`, `borrar_tabla`, `insertar` y `buscar`. La tabla se crea sola si no existe.
+- **`tests`**: pruebas unitarias del cálculo y de la base de datos.
 
 ## Funcionalidades
 
 ### Cálculo de la hipoteca inversa
 
-La lógica de negocio (`src/model/logica_hipoteca_inversa.py`) expone la función `desembolso_mensual(parametros)`, que calcula, usando la fórmula de anualidad financiera:
+La función `desembolso_mensual(parametros)` de `src/model/logica_hipoteca_inversa.py` calcula, con la fórmula de anualidad financiera:
 
 - **Cuota mensual**: el valor que el banco pagaría mensualmente al propietario.
 - **Abonos totales**: la suma de todas las cuotas pagadas durante el plazo.
-- **Intereses totales**: la diferencia entre los abonos totales y el valor financiado del inmueble.
+- **Intereses totales**: la diferencia entre los abonos totales y el valor financiado.
 
-Si la tasa mensual es `0`, el cálculo usa una división simple del valor financiado entre el número de meses, evitando la indeterminación de la fórmula de anualidad.
-
-#### Reglas de negocio y validaciones
+Si la tasa mensual es `0`, el cálculo divide el valor financiado entre el número de meses.
 
 | Excepción | Condición que la dispara |
 |---|---|
@@ -74,60 +64,37 @@ Si la tasa mensual es `0`, el cálculo usa una división simple del valor financ
 | `PlazoMayorPermitido` | El plazo excede los 240 meses (20 años) |
 | `PlazoMenorIgualCero` | El plazo es menor o igual a 0 meses |
 
-### Gestión de clientes
+### Aplicación web
 
-Los clientes se guardan en la tabla `clientes` de PostgreSQL:
+En `http://127.0.0.1:5000` hay un formulario con el valor del inmueble, el porcentaje a financiar (%), la tasa de interés mensual (%), el plazo en meses y un nombre opcional. Al calcular, la consulta (datos y resultado) se guarda en la base de datos. Debajo del formulario hay un historial con una barra de búsqueda por nombre.
 
-| Campo | Regla |
-|---|---|
-| Cédula | Obligatoria, solo números (máx. 20) y única |
-| Nombres / Apellidos | Obligatorios (máx. 100 caracteres) |
-| Fecha de nacimiento | Opcional, formato `AAAA-MM-DD`, no puede ser futura |
-| Teléfono / Dirección | Opcionales |
-
-- **Insertar**: registra un cliente nuevo; si la cédula ya existe, muestra un mensaje de error.
-- **Buscar**: por cédula exacta, o por parte del nombre o apellido (sin distinguir mayúsculas).
+No hay que crear las tablas a mano: si no existen, se crean en la primera consulta.
 
 ### Pruebas
 
-- `tests/tests_hipoteca_inversa.py` valida `desembolso_mensual` con 3 casos normales, 3 casos extraordinarios (tasa cero, desembolso único a 1 mes, plazo máximo) y 4 casos de error, uno por excepción de negocio.
-- `tests/tests_cliente_controller.py` contiene 5 casos de insertar y buscar contra la base de datos (insertar válido, insertar y buscar por cédula, cédula inexistente, cédula duplicada y búsqueda por nombre/apellido) y 4 validaciones de formato que no necesitan base de datos. Su *fixture* (`setUp`) borra y vuelve a crear las tablas antes de cada prueba.
+- `tests/tests_hipoteca_inversa.py`: 3 casos normales, 3 extraordinarios (tasa cero, desembolso único a 1 mes, plazo máximo) y 4 de error, uno por excepción.
+- `tests/tests_consultas_controller.py`: 5 casos contra la base de datos (insertar con nombre, insertar sin nombre, buscar por parte del nombre, buscar un nombre inexistente y crear la tabla cuando no existe). Su fixture (`setUpClass`) borra y vuelve a crear la tabla `consultas` una sola vez al inicio.
 
 ## Requisitos
 
 - Python 3.10 o superior
-- PostgreSQL y sus datos de acceso (servidor, nombre de la base de datos, usuario y contraseña)
-- Paquetes de Python (incluye `psycopg2-binary` y, para la interfaz gráfica, [Kivy](https://kivy.org/)):
+- Una base de datos PostgreSQL (por ejemplo, un proyecto gratuito en [Neon](https://neon.com))
+- Paquetes de Python:
 
   ```bash
   pip install -r requirements.txt
   ```
 
-Puede verificar su versión de Python con:
-
-```bash
-python --version
-```
-
 ## Configuración de la base de datos
 
-1. **Cree una base de datos vacía** en PostgreSQL (por ejemplo, con `psql`):
-
-   ```sql
-   CREATE DATABASE hipoteca_inversa;
-   ```
-
-2. **Configure la conexión**: copie `secret_config_sample.py` como `secret_config.py` (en la raíz del proyecto) y escriba allí el host, el nombre de la base de datos, el usuario, la contraseña y el puerto. `secret_config.py` está en `.gitignore`: **no lo suba a GitHub**.
+1. Cree una base de datos PostgreSQL vacía (en Neon, desde el botón **Connect** de la consola se copian el host, la base, el usuario y la contraseña).
+2. Copie `secret_config_sample.py` como `secret_config.py` (en la raíz del proyecto) y escriba allí el host, el nombre de la base, el usuario, la contraseña y el puerto. `secret_config.py` está en `.gitignore`: **no lo suba a GitHub**.
 
    ```bash
    cp secret_config_sample.py secret_config.py
    ```
 
-3. **Cree las tablas**: antes de ejecutar la aplicación por primera vez, corra las pruebas unitarias (ver [paso 5](#5-ejecutar-las-pruebas-unitarias)); su fixture crea las tablas con los scripts de la carpeta `sql/`. Si prefiere hacerlo a mano, ejecute los archivos `sql/crear-*.sql` en su base de datos.
-
-> ⚠️ **Cuidado:** las pruebas de `tests_cliente_controller.py` **borran y recrean** las tablas, perdiendo los datos que tengan. Úselas con una base de datos de desarrollo. Después de correrlas, las tablas quedan creadas y vacías.
-
-4. *(Opcional)* Para cargar datos de ejemplo: ejecute `sql/insertar-datos-prueba.sql` en su base de datos.
+> ⚠️ **Cuidado:** las pruebas de `tests_consultas_controller.py` **borran y recrean** la tabla `consultas`, perdiendo sus datos. Úselas con una base de desarrollo.
 
 ## Cómo ejecutar el proyecto
 
@@ -135,32 +102,20 @@ python --version
 
 ```bash
 git clone https://github.com/Jose-Dv/Hipoteca-inversa.git
-```
-
-### 2. Ubicarse en la carpeta del proyecto
-
-```bash
 cd Hipoteca-inversa
 ```
 
 Luego instale las dependencias y configure la base de datos como se explica arriba.
 
-### 3. Ejecutar la interfaz de consola
+### 2. Interfaz de consola
 
 ```bash
 python src/view/console.py
 ```
 
-Se muestra un menú:
+Pide el valor del inmueble, el porcentaje de desembolso, la tasa de interés mensual y el plazo en meses, y muestra la cuota mensual, los abonos totales y los intereses totales. No requiere base de datos.
 
-1. **Calcular hipoteca**: pide el valor del inmueble, el porcentaje de financiación, la tasa de interés mensual y el plazo en meses, y muestra la cuota mensual, los abonos totales y los intereses totales.
-2. **Registrar cliente**: pide cédula, nombres, apellidos y, opcionalmente, fecha de nacimiento, teléfono y dirección, y los guarda en la base de datos.
-3. **Buscar cliente**: busque escribiendo una cédula (solo números) o parte de un nombre o apellido.
-4. **Salir**.
-
-La opción 1 funciona sin base de datos; las opciones 2 y 3 requieren la base de datos configurada.
-
-### 4. Ejecutar la interfaz gráfica (Kivy)
+### 3. Interfaz gráfica (Kivy)
 
 Desde la raíz del proyecto:
 
@@ -168,13 +123,17 @@ Desde la raíz del proyecto:
 python -m src.view.interfaz_kivy
 ```
 
-Se abre una ventana con tres pestañas:
+Se abre una ventana con los mismos campos y el botón **Calcular**. Los errores se muestran en la misma ventana. No requiere base de datos.
 
-- **Calcular hipoteca**: campos del cálculo y botón **Calcular**.
-- **Registrar cliente**: formulario con botón **Guardar cliente**.
-- **Buscar cliente**: búsqueda por cédula o por nombre/apellido.
+### 4. Aplicación web
 
-Los errores (datos inválidos, cédula repetida, base de datos no disponible) se muestran en la misma ventana.
+Con `secret_config.py` configurado, desde la raíz del proyecto:
+
+```bash
+python app.py
+```
+
+Abra `http://127.0.0.1:5000` en el navegador. Con una base de datos en blanco no hace falta ningún paso adicional: la tabla se crea en la primera consulta.
 
 ### 5. Ejecutar las pruebas unitarias
 
@@ -188,7 +147,7 @@ Un resultado exitoso termina con algo similar a:
 
 ```
 ----------------------------------------------------------------------
-Ran 19 tests in 0.0XXs
+Ran 15 tests in 0.0XXs
 
 OK
 ```

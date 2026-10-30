@@ -4,6 +4,44 @@ Aplicación en Python para simular el cálculo de una **hipoteca inversa**: la c
 
 **Aplicación publicada:** [https://hipoteca-inversa.onrender.com/](https://hipoteca-inversa.onrender.com/). Como usa el plan gratuito de Render, la primera carga después de un rato sin visitas puede tardar unos segundos.
 
+## Entradas, proceso y salidas
+
+### Entradas
+
+| Dato | Qué es | Reglas |
+|---|---|---|
+| Valor del inmueble | Valor comercial de la propiedad | Mayor que 0 |
+| Porcentaje a financiar | Parte del valor del inmueble que el banco desembolsa. En la web se escribe en porcentaje (por ejemplo `40`) | Número |
+| Tasa de interés mensual | Interés que se cobra cada mes. En la web se escribe en porcentaje (por ejemplo `1.2`) | No puede superar el 4 % mensual (límite de usura) |
+| Plazo en meses | Duración del desembolso | Entre 1 y 240 meses (20 años) |
+| Nombre (solo en la web, opcional) | Etiqueta para encontrar la consulta después | Hasta 100 caracteres |
+
+### Proceso
+
+1. Se convierte el texto escrito en números (la web divide los porcentajes entre 100). Si algo no es un número, se muestra un mensaje de error.
+2. Se validan las reglas de negocio: valor del inmueble mayor que 0, tasa mensual de máximo 4 % y plazo entre 1 y 240 meses.
+3. Se calcula el monto del préstamo: `monto = valor del inmueble × porcentaje a financiar`.
+4. Se calcula la cuota mensual con la fórmula de anualidad financiera: `cuota = monto × i / (1 − (1 + i)^−n)`, donde `i` es la tasa mensual y `n` el plazo en meses. Si la tasa es 0, `cuota = monto / n`.
+5. Se calcula el total de abonos: `total de abonos = cuota × n`.
+6. Se calcula el total de intereses: `total de intereses = total de abonos − monto`.
+7. Solo en la web: la consulta se guarda en la base de datos con un identificador único (UUID) y se muestra el resultado.
+
+### Salidas
+
+- **Cuota mensual**: lo que el banco pagaría cada mes al propietario.
+- **Total de abonos**: la suma de todas las cuotas del plazo.
+- **Total de intereses**: la diferencia entre el total de abonos y el monto financiado.
+- **Mensaje de error** cuando un dato no es válido (ver la tabla de mensajes en la guía de uso de la web).
+
+### Ejemplo
+
+Valor del inmueble `100.000.000`, porcentaje `14 %`, tasa `3,4 %` mensual y plazo de `30` meses:
+
+- Monto financiado: 14.000.000
+- Cuota mensual: 751.691,60
+- Total de abonos: 22.550.748,02
+- Total de intereses: 8.550.748,02
+
 ## Estructura del proyecto
 
 ```
@@ -155,18 +193,56 @@ python -m src.view.interfaz_kivy
 
 Se abre una ventana con los mismos campos y el botón **Calcular**. Los errores se muestran en la misma ventana. No requiere base de datos.
 
-### 4. Aplicación web (con una base de datos en blanco)
+### 4. Aplicación web en local (con una base de datos en blanco)
 
-1. Cree la base de datos vacía y configure `secret_config.py` como se explicó arriba.
-2. Desde la raíz del proyecto, inicie la aplicación:
+1. Tenga instalado Python 3.10 o superior y una base de datos PostgreSQL vacía (por ejemplo, un proyecto de Neon).
+2. Abra una terminal en la carpeta del proyecto y cree un entorno virtual:
+
+   ```bash
+   python -m venv .venv
+   ```
+
+3. Actívelo. En Windows:
+
+   ```bash
+   .venv\Scripts\activate
+   ```
+
+   En Linux o macOS:
+
+   ```bash
+   source .venv/bin/activate
+   ```
+
+4. Instale las dependencias:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+5. Cree su archivo de configuración copiando la plantilla. En Windows:
+
+   ```bash
+   copy secret_config_sample.py secret_config.py
+   ```
+
+   En Linux o macOS:
+
+   ```bash
+   cp secret_config_sample.py secret_config.py
+   ```
+
+6. Abra `secret_config.py` y reemplace los valores de ejemplo por el host, la base, el usuario, la contraseña y el puerto de su base de datos.
+7. Inicie la aplicación desde la raíz del proyecto:
 
    ```bash
    python app.py
    ```
 
-3. Abra `http://127.0.0.1:5000` en el navegador.
-4. Escriba los datos y pulse **Calcular**. No necesita crear las tablas: la primera vez que se guarda o se busca una consulta, la tabla `consultas` se crea sola.
-5. Entre a **Ver consultas** para ver el historial, buscar por nombre o eliminar una consulta.
+8. Abra `http://127.0.0.1:5000` en el navegador. Para detener el servidor, presione `Ctrl + C` en la terminal.
+9. No necesita crear las tablas: la primera vez que se guarda o se busca una consulta, la tabla `consultas` se crea sola.
+
+El uso de cada pantalla se explica en la guía de uso de la aplicación web.
 
 ### 5. Ejecutar las pruebas unitarias
 
@@ -202,6 +278,42 @@ python -m unittest tests/tests_hipoteca_inversa.py
 Render usa el archivo `.python-version` para elegir la versión de Python. No suba nunca la contraseña al repositorio: va solo en las variables de entorno de Render.
 
 La aplicación de este proyecto está publicada en [https://hipoteca-inversa.onrender.com/](https://hipoteca-inversa.onrender.com/).
+
+## Guía de uso de la aplicación web
+
+La aplicación se usa igual en la web publicada y en local; solo cambia la dirección con la que se abre.
+
+### Dónde abrirla
+
+| Modo | Dirección | Qué hace falta |
+|---|---|---|
+| Web publicada (Render) | [https://hipoteca-inversa.onrender.com/](https://hipoteca-inversa.onrender.com/) | Solo un navegador. La primera carga puede tardar unos segundos mientras el servicio despierta |
+| En local | `http://127.0.0.1:5000` | Haber seguido el paso 4 de "Cómo ejecutar el proyecto" y tener el servidor corriendo |
+
+### Paso a paso
+
+1. **Calcular una consulta.** En la página de inicio escriba el valor del inmueble, el porcentaje a financiar (por ejemplo `40`), la tasa de interés mensual (por ejemplo `1.2`), el plazo en meses y, si quiere, un nombre. Pulse **Calcular**.
+2. **Ver el resultado.** Aparece "Consulta guardada exitosamente" con los datos ingresados, la cuota mensual, el total de abonos y el total de intereses. Desde ahí puede hacer una **Nueva consulta** o ir a **Ver consultas**.
+3. **Revisar el historial.** **Ver consultas** muestra una tabla con todas las consultas guardadas, de la más reciente a la más antigua.
+4. **Buscar.** Escriba parte del nombre en la barra de búsqueda y pulse **Buscar**. No distingue mayúsculas de minúsculas. Con la barra vacía se muestran todas.
+5. **Eliminar una consulta.** Pulse **Eliminar** en la fila que quiera quitar y acepte la confirmación. Las demás no se tocan.
+6. **Borrar toda la tabla.** Al final de la página, en la "Zona peligrosa", escriba `BORRAR` y pulse **Borrar tabla**. Se eliminan todas las consultas; la tabla se vuelve a crear vacía sola.
+
+### Mensajes de error
+
+| Mensaje | Causa | Qué hacer |
+|---|---|---|
+| "Ingrese solo números en todos los campos" | Un campo tiene texto o está en un formato que no es número | Corregir el campo y volver a calcular |
+| "el valor del inmueble debe ser mayor que cero" | El valor es 0 o negativo | Escribir un valor positivo |
+| "la tasa mensual supera el máximo permitido (4%)" | La tasa mensual es mayor que el 4 % | Escribir una tasa de 4 o menos |
+| "el plazo no debe ser mayor a 240 meses" | El plazo excede los 20 años | Escribir un plazo de 240 o menos |
+| "el plazo debe estar entre 1 y 240 meses" | El plazo es 0 o negativo | Escribir un plazo de 1 a 240 |
+| "Error inesperado" | Normalmente, un problema con la base de datos (conexión o configuración) | En local, revisar `secret_config.py`; en Render, revisar las variables de entorno |
+
+### Tenga en cuenta
+
+- **Los datos son compartidos.** La aplicación no tiene usuarios: todas las personas que abran la misma dirección ven, buscan y pueden eliminar las mismas consultas. No escriba datos personales reales.
+- **Cada instalación local ve su propia base.** En local, las consultas que ve dependen de la base configurada en `secret_config.py`.
 
 ## Autores
 

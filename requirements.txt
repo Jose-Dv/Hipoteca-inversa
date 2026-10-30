@@ -1,6 +1,9 @@
-# Necesaria para guardar y buscar clientes en PostgreSQL
-# (src/controller/cliente_controller.py y tests/tests_cliente_controller.py).
+# Necesaria para guardar y buscar las consultas en PostgreSQL
+# (src/controller/consultas_controller.py y tests/tests_consultas_controller.py).
 psycopg2-binary>=2.9
+
+# Necesaria para la aplicación web (app.py).
+flask>=3.0
 
 # Dependencia opcional: solo necesaria para ejecutar la interfaz gráfica
 # (src/view/interfaz_kivy.py). La interfaz de consola no la requiere.

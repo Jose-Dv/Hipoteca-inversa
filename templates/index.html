@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cálculo Hipoteca Inversa</title>
+</head>
+<body>
+    <h1>Simulador de Hipoteca Inversa</h1>
+
+    <form action="/calcular_cuota" method="POST">
+        <label>Nombre (opcional):</label>
+        <input type="text" name="nombre" maxlength="100"><br>
+
+        <label>Valor del Inmueble:</label>
+        <input type="number" name="valor_inmueble" step="any" required><br>
+
+        <label>Porcentaje a Financiar (%):</label>
+        <input type="number" name="porcentaje" step="any" required><br>
+
+        <label>Tasa de Interés Mensual (%):</label>
+        <input type="number" name="tasa_mensual" step="any" required><br>
+
+        <label>Plazo Meses:</label>
+        <input type="number" name="plazo_meses" required><br>
+
+        <button type="submit">Calcular</button>
+    </form>
+
+    <h2>Historial de consultas</h2>
+
+    <form action="/" method="GET">
+        <input type="text" name="buscar" value="{{ buscar }}" placeholder="Buscar por nombre">
+        <button type="submit">Buscar</button>
+    </form>
+
+    {% if consultas %}
+    <table border="1">
+        <tr>
+            <th>Nombre</th>
+            <th>Valor inmueble</th>
+            <th>Porcentaje (%)</th>
+            <th>Tasa mensual (%)</th>
+            <th>Plazo (meses)</th>
+            <th>Cuota mensual</th>
+            <th>Total abonos</th>
+            <th>Total intereses</th>
+        </tr>
+        {% for consulta in consultas %}
+        <tr>
+            <td>{{ consulta.nombre or "-" }}</td>
+            <td>{{ "{:,.2f}".format(consulta.valor_inmueble) }}</td>
+            <td>{{ "{:.2f}".format(consulta.porcentaje * 100) }}</td>
+            <td>{{ "{:.2f}".format(consulta.tasa_mensual * 100) }}</td>
+            <td>{{ consulta.plazo_meses }}</td>
+            <td>{{ "{:,.2f}".format(consulta.cuota_mensual) }}</td>
+            <td>{{ "{:,.2f}".format(consulta.total_abonos) }}</td>
+            <td>{{ "{:,.2f}".format(consulta.total_intereses) }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No hay consultas para mostrar.</p>
+    {% endif %}
+</body>
+</html>

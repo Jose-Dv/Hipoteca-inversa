@@ -1,7 +1,8 @@
 """Controlador de clientes: validación y acceso a PostgreSQL.
 
 Las vistas (consola y Kivy) solo llaman a estas funciones y capturan
-``ErrorCliente``. La cadena de conexión se lee de ``secret_config.py``.
+``ErrorCliente``. Los datos de conexión (PGHOST, PGDATABASE, PGUSER,
+PGPASSWORD y PGPORT) se leen de ``secret_config.py``.
 """
 
 from contextlib import contextmanager
@@ -13,9 +14,6 @@ import psycopg2
 from psycopg2 import errors
 
 from src.model.cliente import Cliente
-
-# Las pruebas reemplazan este valor para usar la base de pruebas.
-url_base_de_datos: Optional[str] = None
 
 CARPETA_SQL = Path(__file__).resolve().parents[2] / "sql"
 ARCHIVOS_CREAR_TABLAS = (
@@ -41,30 +39,33 @@ class ErrorCliente(Exception):
     """Error de validación o de base de datos al gestionar clientes."""
 
 
-def _obtener_url() -> str:
-    """Retorna la cadena de conexión configurada, sin importar secret_config antes de tiempo."""
-    if url_base_de_datos:
-        return url_base_de_datos
+@contextmanager
+def _conexion() -> Iterator:
+    """Abre una conexión, confirma al terminar y siempre la cierra.
+
+    ``secret_config`` se importa aquí, y no al inicio, para que calcular una
+    hipoteca funcione aunque todavía no exista ese archivo.
+    """
     try:
         import secret_config  # pylint: disable=import-outside-toplevel
     except ImportError as error:
         raise ErrorCliente(
             "No se encontró secret_config.py. Copie secret_config_sample.py como "
-            "secret_config.py y escriba su cadena de conexión."
+            "secret_config.py y complete los datos de su base de datos."
         ) from error
-    return secret_config.DATABASE_URL
 
-
-@contextmanager
-def _conexion() -> Iterator:
-    """Abre una conexión, confirma al terminar y siempre la cierra."""
-    url = _obtener_url()
     try:
-        conexion = psycopg2.connect(url)
+        conexion = psycopg2.connect(
+            host=secret_config.PGHOST,
+            dbname=secret_config.PGDATABASE,
+            user=secret_config.PGUSER,
+            password=secret_config.PGPASSWORD,
+            port=secret_config.PGPORT,
+        )
     except psycopg2.Error as error:
         raise ErrorCliente(
             "No fue posible conectar con la base de datos. "
-            "Revise la cadena de conexión de secret_config.py."
+            "Revise los datos de secret_config.py."
         ) from error
     try:
         with conexion:

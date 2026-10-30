@@ -1,28 +1,13 @@
-"""Pruebas de insertar y buscar clientes contra la base de datos de pruebas.
+"""Pruebas de insertar y buscar clientes contra la base de datos.
 
-ADVERTENCIA: el fixture borra y recrea las tablas de ``DATABASE_URL_PRUEBAS``.
-Esa cadena debe ser distinta de ``DATABASE_URL`` (en Neon, use otra rama).
+ADVERTENCIA: el fixture borra y recrea las tablas de la base configurada en
+``secret_config.py``. Úselas solo con una base de desarrollo (en Neon, una
+rama de pruebas).
 """
 
 import unittest
 
-import secret_config
 from src.controller import cliente_controller as controlador
-
-
-def setUpModule() -> None:  # pylint: disable=invalid-name
-    """Dirige el controlador a la base de pruebas, nunca a la de la aplicación."""
-    if secret_config.DATABASE_URL_PRUEBAS == secret_config.DATABASE_URL:
-        raise RuntimeError(
-            "DATABASE_URL_PRUEBAS debe ser distinta de DATABASE_URL: "
-            "las pruebas borran las tablas."
-        )
-    controlador.url_base_de_datos = secret_config.DATABASE_URL_PRUEBAS
-
-
-def tearDownModule() -> None:  # pylint: disable=invalid-name
-    """Restablece la configuración normal del controlador."""
-    controlador.url_base_de_datos = None
 
 
 class TestClienteController(unittest.TestCase):

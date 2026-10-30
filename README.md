@@ -13,7 +13,7 @@ Hipoteca-inversa/
 │   ├── controller/
 │   │   ├── __init__.py
 │   │   ├── hipoteca_controller.py   # Parseo de datos y manejo de errores del cálculo
-│   │   └── consultas_controller.py  # Crear/borrar tabla, insertar y buscar consultas
+│   │   └── consultas_controller.py  # Crear/borrar tabla, insertar, buscar y eliminar consultas
 │   ├── model/
 │   │   ├── __init__.py
 │   │   ├── logica_hipoteca_inversa.py  # Lógica de negocio y cálculos financieros
@@ -31,11 +31,11 @@ Hipoteca-inversa/
 ├── templates/
 │   ├── index.html                   # Inicio: formulario de cálculo
 │   ├── resultado.html               # Consulta guardada con su información
-│   └── consultas.html               # Historial y búsqueda por nombre
+│   └── consultas.html               # Historial, búsqueda y borrado
 ├── tests/
 │   ├── __init__.py
 │   ├── tests_hipoteca_inversa.py    # Pruebas unitarias de la lógica de cálculo
-│   └── tests_consultas_controller.py  # Pruebas de insertar y buscar (con BD)
+│   └── tests_consultas_controller.py  # Pruebas de insertar, buscar y eliminar (con BD)
 ├── app.py                           # Arranca la web y registra el Blueprint
 ├── .gitignore
 ├── LICENSE
@@ -46,12 +46,12 @@ Hipoteca-inversa/
 
 ### Descripción de la arquitectura
 
-- **`model`**: `logica_hipoteca_inversa.py` contiene la lógica de cálculo (validaciones, fórmulas financieras, reglas de negocio y excepciones propias). `consulta.py` define la clase `Consulta`: los datos ingresados, el resultado y el nombre opcional. Ninguno depende de cómo se muestren los datos.
+- **`model`**: `logica_hipoteca_inversa.py` contiene la lógica de cálculo (validaciones, fórmulas financieras, reglas de negocio y excepciones propias). `consulta.py` define la clase `Consulta`: los datos ingresados, el resultado, el nombre opcional y el `id` que asigna la base de datos. Ninguno depende de cómo se muestren los datos.
 - **`view`**: la consola (`console.py`), la interfaz gráfica (`interfaz_kivy.py`) y la web (`web/vista_hipoteca.py` con las plantillas de `templates/` y los estilos de `static/css/`). Ninguna contiene lógica de negocio.
   - La web usa un **Blueprint de Flask** llamado `vista`, que reúne las rutas de la aplicación. `app.py`, en la raíz, solo crea la aplicación Flask y registra ese Blueprint; Flask y los servidores de publicación esperan encontrar `app.py` en la raíz.
 - **`controller`**: intermediario entre las vistas y el modelo o la base de datos.
   - `hipoteca_controller.py` convierte el texto ingresado en los tipos del modelo (tolerando formatos como `1,2` o `300.000.000`) y traduce cualquier error a un mensaje legible mediante `ErrorCalculoHipoteca`. Lo usan la consola y Kivy.
-  - `consultas_controller.py` es el único que habla con PostgreSQL (con `psycopg2`). Expone `crear_tabla`, `borrar_tabla`, `insertar` y `buscar`. La tabla se crea sola: `insertar` y `buscar` ejecutan `CREATE TABLE IF NOT EXISTS` antes de trabajar, así que no hay que crearla a mano.
+  - `consultas_controller.py` es el único que habla con PostgreSQL (con `psycopg2`). Expone `crear_tabla`, `borrar_tabla`, `insertar`, `buscar` y `eliminar`. La tabla se crea sola: `insertar` y `buscar` ejecutan `CREATE TABLE IF NOT EXISTS` antes de trabajar, así que no hay que crearla a mano.
 - **`tests`**: pruebas unitarias del cálculo y de la base de datos.
 
 ## Funcionalidades
@@ -79,14 +79,15 @@ Las rutas están en `src/view/web/vista_hipoteca.py`. En local, la aplicación q
 
 - **Inicio (`/`)**: menú principal con el formulario (valor del inmueble, porcentaje a financiar en %, tasa de interés mensual en %, plazo en meses y nombre opcional) y el enlace **Ver consultas**.
 - **Resultado (`/calcular_cuota`)**: al calcular, la consulta (datos y resultado) se guarda en la base de datos y se muestra "Consulta guardada exitosamente" con toda la información.
-- **Consultas (`/consultas`)**: historial de todas las consultas guardadas, con una barra de búsqueda por nombre.
+- **Consultas (`/consultas`)**: historial de todas las consultas guardadas, con una barra de búsqueda por nombre y un botón **Eliminar** en cada fila (`/eliminar_consulta/<id>`), que pide confirmación.
+- **Borrar tabla (`/borrar_tabla`)**: al final de la página de consultas, en la "Zona peligrosa". Elimina todas las consultas, y solo actúa si el usuario escribe la palabra `BORRAR`.
 
-No hay que crear las tablas a mano: si no existen, se crean solas en la primera consulta o búsqueda. La web tampoco ofrece una opción para borrar la tabla, porque eliminar todas las consultas es una acción peligrosa que el usuario no necesita. El método `borrar_tabla` del controlador se conserva únicamente para las pruebas.
+No hay que crear las tablas a mano: si no existen, se crean solas en la primera consulta o búsqueda, también después de usar **Borrar tabla**.
 
 ### Pruebas
 
 - `tests/tests_hipoteca_inversa.py`: 3 casos normales, 3 extraordinarios (tasa cero, desembolso único a 1 mes, plazo máximo) y 4 de error, uno por excepción.
-- `tests/tests_consultas_controller.py`: 5 casos contra la base de datos (insertar con nombre, insertar sin nombre, buscar por parte del nombre, buscar un nombre inexistente y crear la tabla cuando no existe). Su fixture (`setUpClass`) borra y vuelve a crear la tabla `consultas` una sola vez al inicio.
+- `tests/tests_consultas_controller.py`: 6 casos contra la base de datos (insertar con nombre, insertar sin nombre, buscar por parte del nombre, buscar un nombre inexistente, crear la tabla cuando no existe y eliminar una consulta). Su fixture (`setUpClass`) borra y vuelve a crear la tabla `consultas` una sola vez al inicio.
 
 ## Requisitos
 
@@ -149,7 +150,7 @@ Se abre una ventana con los mismos campos y el botón **Calcular**. Los errores 
 
 3. Abra `http://127.0.0.1:5000` en el navegador.
 4. Escriba los datos y pulse **Calcular**. No necesita crear las tablas: la primera vez que se guarda o se busca una consulta, la tabla `consultas` se crea sola.
-5. Entre a **Ver consultas** para ver el historial y buscar por nombre.
+5. Entre a **Ver consultas** para ver el historial, buscar por nombre o eliminar una consulta.
 
 ### 5. Ejecutar las pruebas unitarias
 
@@ -163,7 +164,7 @@ Un resultado exitoso termina con algo similar a:
 
 ```
 ----------------------------------------------------------------------
-Ran 15 tests in 0.0XXs
+Ran 16 tests in 0.0XXs
 
 OK
 ```

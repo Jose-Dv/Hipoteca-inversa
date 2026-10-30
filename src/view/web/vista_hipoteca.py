@@ -1,6 +1,6 @@
-"""Rutas de la aplicación web: inicio, resultado y consultas."""
+"""Rutas de la aplicación web: inicio, resultado, consultas y borrados."""
 
-from flask import Blueprint, render_template, request
+from flask import Blueprint, redirect, render_template, request, url_for
 
 from model.logica_hipoteca_inversa import (
     ParametrosHipoteca,
@@ -11,6 +11,8 @@ from model.consulta import Consulta
 from controller.consultas_controller import ConsultasController
 
 vista = Blueprint("vista", __name__)
+
+PALABRA_CONFIRMACION = "BORRAR"
 
 
 @vista.route("/")
@@ -58,3 +60,22 @@ def ver_consultas():
     nombre_buscado = request.args.get("buscar", "")
     consultas = ConsultasController.buscar(nombre_buscado)
     return render_template("consultas.html", consultas=consultas, buscar=nombre_buscado)
+
+
+@vista.route("/eliminar_consulta/<int:id_consulta>", methods=["POST"])
+def eliminar_consulta(id_consulta):
+    ConsultasController.eliminar(id_consulta)
+    return redirect(url_for("vista.ver_consultas"))
+
+
+@vista.route("/borrar_tabla", methods=["POST"])
+def borrar_tabla():
+    if request.form.get("confirmacion", "").strip() != PALABRA_CONFIRMACION:
+        return (
+            "<h3>No se borró nada</h3>"
+            f"<p>Para borrar la tabla debe escribir {PALABRA_CONFIRMACION}.</p>"
+            '<a href="/consultas">Volver</a>'
+        ), 400
+
+    ConsultasController.borrar_tabla()
+    return redirect(url_for("vista.ver_consultas"))

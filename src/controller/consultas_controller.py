@@ -1,4 +1,4 @@
-"""Guarda y busca las consultas de hipoteca inversa en PostgreSQL."""
+"""Guarda, busca y elimina las consultas de hipoteca inversa en PostgreSQL."""
 
 import psycopg2
 
@@ -28,11 +28,13 @@ VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
 
 BUSCAR = """
 SELECT nombre, valor_inmueble, porcentaje, tasa_mensual, plazo_meses,
-       cuota_mensual, total_abonos, total_intereses
+       cuota_mensual, total_abonos, total_intereses, id
 FROM consultas
 WHERE nombre ILIKE %s
 ORDER BY id DESC
 """
+
+ELIMINAR = "DELETE FROM consultas WHERE id = %s"
 
 
 def conectar():
@@ -86,3 +88,11 @@ class ConsultasController:
         conexion.commit()
         conexion.close()
         return [Consulta(*fila) for fila in filas]
+
+    @staticmethod
+    def eliminar(id_consulta: int) -> None:
+        """Elimina una sola consulta, identificada por su id."""
+        conexion = conectar()
+        conexion.cursor().execute(ELIMINAR, (id_consulta,))
+        conexion.commit()
+        conexion.close()

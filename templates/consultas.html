@@ -25,6 +25,7 @@
             <th>Cuota mensual</th>
             <th>Total abonos</th>
             <th>Total intereses</th>
+            <th>Acción</th>
         </tr>
         {% for consulta in consultas %}
         <tr>
@@ -36,12 +37,25 @@
             <td>{{ "{:,.2f}".format(consulta.cuota_mensual) }}</td>
             <td>{{ "{:,.2f}".format(consulta.total_abonos) }}</td>
             <td>{{ "{:,.2f}".format(consulta.total_intereses) }}</td>
+            <td class="accion">
+                <form action="/eliminar_consulta/{{ consulta.id }}" method="POST"
+                      onsubmit="return confirm('¿Eliminar esta consulta?');">
+                    <button type="submit" class="secundario">Eliminar</button>
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </table>
     {% else %}
     <p>No hay consultas para mostrar.</p>
     {% endif %}
+
+    <h2>Zona peligrosa</h2>
+    <form action="/borrar_tabla" method="POST">
+        <label>Para borrar todas las consultas escriba BORRAR:</label>
+        <input type="text" name="confirmacion" pattern="BORRAR" autocomplete="off" required>
+        <button type="submit" class="secundario">Borrar tabla</button>
+    </form>
 
     <p><a href="/">Volver al inicio</a></p>
 </body>

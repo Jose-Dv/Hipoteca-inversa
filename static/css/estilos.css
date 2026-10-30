@@ -60,6 +60,19 @@ button:hover {
     opacity: 0.85;
 }
 
+/* Botón de contorno para acciones de borrado */
+button.secundario {
+    background: transparent;
+    color: var(--principal);
+    border: 1px solid var(--principal);
+}
+
+button.secundario:hover {
+    background: var(--principal);
+    color: var(--fondo);
+    opacity: 1;
+}
+
 a {
     color: var(--principal);
     font-weight: 600;
@@ -90,4 +103,14 @@ th {
 th:first-child,
 td:first-child {
     text-align: left;
+}
+
+td.accion {
+    text-align: center;
+}
+
+td.accion button {
+    margin-top: 0;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.9rem;
 }

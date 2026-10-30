@@ -1,4 +1,4 @@
-"""Pruebas de guardar y buscar consultas en la base de datos.
+"""Pruebas de guardar, buscar y eliminar consultas en la base de datos.
 
 ADVERTENCIA: el fixture borra y recrea la tabla ``consultas`` de la base
 configurada en ``secret_config.py``.
@@ -58,6 +58,16 @@ class TestConsultasController(unittest.TestCase):
         ConsultasController.insertar(consulta)
 
         self.assertEqual(ConsultasController.buscar("Tabla Nueva"), [consulta])
+
+    def test_eliminar_6_una_consulta(self) -> None:
+        consulta = Consulta("Para Eliminar", 100_000_000, 0.40, 0.010, 24,
+                            1000000.0, 24000000.0, 1000000.0)
+        ConsultasController.insertar(consulta)
+        guardada = ConsultasController.buscar("Para Eliminar")[0]
+
+        ConsultasController.eliminar(guardada.id)
+
+        self.assertEqual(ConsultasController.buscar("Para Eliminar"), [])
 
 
 if __name__ == "__main__":

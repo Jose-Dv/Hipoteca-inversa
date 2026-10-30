@@ -2,7 +2,9 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Consultas</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
 </head>
 <body>
     <h1>Consultas guardadas</h1>
@@ -13,7 +15,7 @@
     </form>
 
     {% if consultas %}
-    <table border="1">
+    <table>
         <tr>
             <th>Nombre</th>
             <th>Valor inmueble</th>

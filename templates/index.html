@@ -2,26 +2,28 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Cálculo Hipoteca Inversa</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
 </head>
 <body>
     <h1>Simulador de Hipoteca Inversa</h1>
 
     <form action="/calcular_cuota" method="POST">
         <label>Nombre (opcional):</label>
-        <input type="text" name="nombre" maxlength="100"><br>
+        <input type="text" name="nombre" maxlength="100">
 
         <label>Valor del Inmueble:</label>
-        <input type="number" name="valor_inmueble" step="any" required><br>
+        <input type="number" name="valor_inmueble" step="any" required>
 
         <label>Porcentaje a Financiar (%):</label>
-        <input type="number" name="porcentaje" step="any" required><br>
+        <input type="number" name="porcentaje" step="any" required>
 
         <label>Tasa de Interés Mensual (%):</label>
-        <input type="number" name="tasa_mensual" step="any" required><br>
+        <input type="number" name="tasa_mensual" step="any" required>
 
         <label>Plazo Meses:</label>
-        <input type="number" name="plazo_meses" required><br>
+        <input type="number" name="plazo_meses" required>
 
         <button type="submit">Calcular</button>
     </form>

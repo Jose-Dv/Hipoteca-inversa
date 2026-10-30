@@ -1,0 +1,93 @@
+/* Paleta de 3 colores */
+:root {
+    --fondo: #f4f1ea;      /* marfil */
+    --principal: #1f3a4d;  /* azul petróleo */
+    --acento: #b08d57;     /* dorado apagado */
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: system-ui, "Segoe UI", Arial, sans-serif;
+    background: var(--fondo);
+    color: var(--principal);
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    line-height: 1.5;
+}
+
+h1,
+h2 {
+    border-bottom: 2px solid var(--acento);
+    padding-bottom: 0.3rem;
+}
+
+label {
+    display: block;
+    margin-top: 0.8rem;
+    font-weight: 600;
+}
+
+input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--acento);
+    border-radius: 6px;
+    background: var(--fondo);
+    color: var(--principal);
+    font-size: 1rem;
+}
+
+input:focus {
+    outline: 2px solid var(--principal);
+}
+
+button {
+    margin-top: 1rem;
+    padding: 0.6rem 1.4rem;
+    border: none;
+    border-radius: 6px;
+    background: var(--principal);
+    color: var(--fondo);
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.85;
+}
+
+a {
+    color: var(--principal);
+    font-weight: 600;
+}
+
+a:hover {
+    color: var(--acento);
+}
+
+table {
+    width: 100%;
+    margin-top: 1rem;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--acento);
+    text-align: right;
+}
+
+th {
+    background: var(--principal);
+    color: var(--fondo);
+}
+
+th:first-child,
+td:first-child {
+    text-align: left;
+}

@@ -63,9 +63,9 @@ class TestConsultasController(unittest.TestCase):
         consulta = Consulta("Para Eliminar", 100_000_000, 0.40, 0.010, 24,
                             1000000.0, 24000000.0, 1000000.0)
         ConsultasController.insertar(consulta)
-        guardada = ConsultasController.buscar("Para Eliminar")[0]
+        self.assertEqual(ConsultasController.buscar("Para Eliminar"), [consulta])
 
-        ConsultasController.eliminar(guardada.id)
+        ConsultasController.eliminar(consulta.id)
 
         self.assertEqual(ConsultasController.buscar("Para Eliminar"), [])
 

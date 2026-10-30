@@ -7,7 +7,7 @@ from model.consulta import Consulta
 
 CREAR_TABLA = """
 CREATE TABLE IF NOT EXISTS consultas (
-    id SERIAL PRIMARY KEY,
+    id VARCHAR(36) PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL DEFAULT '',
     valor_inmueble DOUBLE PRECISION NOT NULL,
     porcentaje DOUBLE PRECISION NOT NULL,
@@ -21,9 +21,9 @@ CREATE TABLE IF NOT EXISTS consultas (
 """
 
 INSERTAR = """
-INSERT INTO consultas (nombre, valor_inmueble, porcentaje, tasa_mensual, plazo_meses,
-                       cuota_mensual, total_abonos, total_intereses)
-VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+INSERT INTO consultas (id, nombre, valor_inmueble, porcentaje, tasa_mensual,
+                       plazo_meses, cuota_mensual, total_abonos, total_intereses)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
 """
 
 BUSCAR = """
@@ -31,7 +31,7 @@ SELECT nombre, valor_inmueble, porcentaje, tasa_mensual, plazo_meses,
        cuota_mensual, total_abonos, total_intereses, id
 FROM consultas
 WHERE nombre ILIKE %s
-ORDER BY id DESC
+ORDER BY fecha DESC
 """
 
 ELIMINAR = "DELETE FROM consultas WHERE id = %s"
@@ -70,9 +70,9 @@ class ConsultasController:
         cursor = conexion.cursor()
         cursor.execute(CREAR_TABLA)
         cursor.execute(INSERTAR, (
-            consulta.nombre, consulta.valor_inmueble, consulta.porcentaje,
-            consulta.tasa_mensual, consulta.plazo_meses, consulta.cuota_mensual,
-            consulta.total_abonos, consulta.total_intereses,
+            consulta.id, consulta.nombre, consulta.valor_inmueble,
+            consulta.porcentaje, consulta.tasa_mensual, consulta.plazo_meses,
+            consulta.cuota_mensual, consulta.total_abonos, consulta.total_intereses,
         ))
         conexion.commit()
         conexion.close()
@@ -90,8 +90,8 @@ class ConsultasController:
         return [Consulta(*fila) for fila in filas]
 
     @staticmethod
-    def eliminar(id_consulta: int) -> None:
-        """Elimina una sola consulta, identificada por su id."""
+    def eliminar(id_consulta: str) -> None:
+        """Elimina una sola consulta, identificada por su id (UUID en texto)."""
         conexion = conectar()
         conexion.cursor().execute(ELIMINAR, (id_consulta,))
         conexion.commit()

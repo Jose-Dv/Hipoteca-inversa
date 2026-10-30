@@ -62,7 +62,7 @@ def ver_consultas():
     return render_template("consultas.html", consultas=consultas, buscar=nombre_buscado)
 
 
-@vista.route("/eliminar_consulta/<int:id_consulta>", methods=["POST"])
+@vista.route("/eliminar_consulta/<string:id_consulta>", methods=["POST"])
 def eliminar_consulta(id_consulta):
     ConsultasController.eliminar(id_consulta)
     return redirect(url_for("vista.ver_consultas"))

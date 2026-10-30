@@ -46,7 +46,7 @@ Hipoteca-inversa/
 
 ### Descripción de la arquitectura
 
-- **`model`**: `logica_hipoteca_inversa.py` contiene la lógica de cálculo (validaciones, fórmulas financieras, reglas de negocio y excepciones propias). `consulta.py` define la clase `Consulta`: los datos ingresados, el resultado, el nombre opcional y el `id` que asigna la base de datos. Ninguno depende de cómo se muestren los datos.
+- **`model`**: `logica_hipoteca_inversa.py` contiene la lógica de cálculo (validaciones, fórmulas financieras, reglas de negocio y excepciones propias). `consulta.py` define la clase `Consulta`: los datos ingresados, el resultado, el nombre opcional y un `id` único (UUID) que se genera al crear la consulta. Ninguno depende de cómo se muestren los datos.
 - **`view`**: la consola (`console.py`), la interfaz gráfica (`interfaz_kivy.py`) y la web (`web/vista_hipoteca.py` con las plantillas de `templates/` y los estilos de `static/css/`). Ninguna contiene lógica de negocio.
   - La web usa un **Blueprint de Flask** llamado `vista`, que reúne las rutas de la aplicación. `app.py`, en la raíz, solo crea la aplicación Flask y registra ese Blueprint; Flask y los servidores de publicación esperan encontrar `app.py` en la raíz.
 - **`controller`**: intermediario entre las vistas y el modelo o la base de datos.
@@ -79,10 +79,12 @@ Las rutas están en `src/view/web/vista_hipoteca.py`. En local, la aplicación q
 
 - **Inicio (`/`)**: menú principal con el formulario (valor del inmueble, porcentaje a financiar en %, tasa de interés mensual en %, plazo en meses y nombre opcional) y el enlace **Ver consultas**.
 - **Resultado (`/calcular_cuota`)**: al calcular, la consulta (datos y resultado) se guarda en la base de datos y se muestra "Consulta guardada exitosamente" con toda la información.
-- **Consultas (`/consultas`)**: historial de todas las consultas guardadas, con una barra de búsqueda por nombre y un botón **Eliminar** en cada fila (`/eliminar_consulta/<id>`), que pide confirmación.
+- **Consultas (`/consultas`)**: historial de todas las consultas guardadas, de la más reciente a la más antigua, con una barra de búsqueda por nombre y un botón **Eliminar** en cada fila (`/eliminar_consulta/<id>`), que pide confirmación.
 - **Borrar tabla (`/borrar_tabla`)**: al final de la página de consultas, en la "Zona peligrosa". Elimina todas las consultas, y solo actúa si el usuario escribe la palabra `BORRAR`.
 
 No hay que crear las tablas a mano: si no existen, se crean solas en la primera consulta o búsqueda, también después de usar **Borrar tabla**.
+
+Cada consulta se identifica con un UUID generado en Python (`uuid.uuid4()`), guardado como texto en la columna `id`. No se usa un contador autoincremental de la base de datos.
 
 ### Pruebas
 
@@ -109,6 +111,8 @@ No hay que crear las tablas a mano: si no existen, se crean solas en la primera 
    ```
 
 > ⚠️ **Cuidado:** las pruebas de `tests_consultas_controller.py` **borran y recrean** la tabla `consultas`, perdiendo sus datos. Úselas con una base de desarrollo.
+
+> Si su base ya tenía una tabla `consultas` de una versión anterior (con `id` numérico), bórrela una vez: `CREATE TABLE IF NOT EXISTS` no cambia una tabla que ya existe.
 
 ## Cómo ejecutar el proyecto
 

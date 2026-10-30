@@ -41,16 +41,7 @@ class ResultadoHipoteca:
 
 
 def _normalizar_numero(texto: str) -> str:
-    """Tolera formatos numéricos comunes en español y en inglés.
-
-    Ejemplos de texto que esta función deja listos para ``float()``:
-
-    - ``"1,2"``               -> ``"1.2"``            (coma decimal)
-    - ``"300.000.000"``       -> ``"300000000"``      (puntos de miles)
-    - ``"300,000,000"``       -> ``"300000000"``      (comas de miles)
-    - ``"300.000.000,50"``    -> ``"300000000.50"``   (formato es-CO)
-    - ``"300,000,000.50"``    -> ``"300000000.50"``   (formato en-US)
-    """
+    """Tolera formatos numéricos comunes en español y en inglés."""
     texto = texto.strip()
     tiene_coma = "," in texto
     tiene_punto = "." in texto

@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass
 class Consulta:
     """Datos ingresados y resultados de una consulta. ``nombre`` puede ir vacío."""
 

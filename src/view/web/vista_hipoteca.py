@@ -1,4 +1,4 @@
-"""Rutas de la aplicación web: inicio, resultado, consultas y crear tablas."""
+"""Rutas de la aplicación web: inicio, resultado y consultas."""
 
 from flask import Blueprint, render_template, request
 
@@ -58,20 +58,3 @@ def ver_consultas():
     nombre_buscado = request.args.get("buscar", "")
     consultas = ConsultasController.buscar(nombre_buscado)
     return render_template("consultas.html", consultas=consultas, buscar=nombre_buscado)
-
-
-@vista.route("/crear_tablas")
-def crear_tablas():
-    try:
-        ConsultasController.crear_tabla()
-        return (
-            "<h3>Tablas listas</h3>"
-            "<p>La tabla de consultas está creada. Si ya existía, no se modificó ningún dato.</p>"
-            '<a href="/">Volver al inicio</a>'
-        )
-    except Exception as error:
-        return (
-            "<h3>No se pudieron crear las tablas</h3>"
-            f"<p>Revise la configuración de la base de datos: {error}</p>"
-            '<a href="/">Volver al inicio</a>'
-        ), 500

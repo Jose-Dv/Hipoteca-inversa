@@ -25,8 +25,11 @@ Hipoteca-inversa/
 │       └── web/
 │           ├── __init__.py
 │           └── vista_hipoteca.py    # Blueprint de Flask con las rutas de la web
+├── static/
+│   └── css/
+│       └── estilos.css              # Estilos de la web
 ├── templates/
-│   ├── index.html                   # Inicio: formulario y enlace para crear las tablas
+│   ├── index.html                   # Inicio: formulario de cálculo
 │   ├── resultado.html               # Consulta guardada con su información
 │   └── consultas.html               # Historial y búsqueda por nombre
 ├── tests/
@@ -44,11 +47,11 @@ Hipoteca-inversa/
 ### Descripción de la arquitectura
 
 - **`model`**: `logica_hipoteca_inversa.py` contiene la lógica de cálculo (validaciones, fórmulas financieras, reglas de negocio y excepciones propias). `consulta.py` define la clase `Consulta`: los datos ingresados, el resultado y el nombre opcional. Ninguno depende de cómo se muestren los datos.
-- **`view`**: la consola (`console.py`), la interfaz gráfica (`interfaz_kivy.py`) y la web (`web/vista_hipoteca.py` con las plantillas de `templates/`). Ninguna contiene lógica de negocio.
+- **`view`**: la consola (`console.py`), la interfaz gráfica (`interfaz_kivy.py`) y la web (`web/vista_hipoteca.py` con las plantillas de `templates/` y los estilos de `static/css/`). Ninguna contiene lógica de negocio.
   - La web usa un **Blueprint de Flask** llamado `vista`, que reúne las rutas de la aplicación. `app.py`, en la raíz, solo crea la aplicación Flask y registra ese Blueprint; Flask y los servidores de publicación esperan encontrar `app.py` en la raíz.
 - **`controller`**: intermediario entre las vistas y el modelo o la base de datos.
   - `hipoteca_controller.py` convierte el texto ingresado en los tipos del modelo (tolerando formatos como `1,2` o `300.000.000`) y traduce cualquier error a un mensaje legible mediante `ErrorCalculoHipoteca`. Lo usan la consola y Kivy.
-  - `consultas_controller.py` es el único que habla con PostgreSQL (con `psycopg2`). Expone `crear_tabla`, `borrar_tabla`, `insertar` y `buscar`. La tabla también se crea sola si no existe al insertar o buscar.
+  - `consultas_controller.py` es el único que habla con PostgreSQL (con `psycopg2`). Expone `crear_tabla`, `borrar_tabla`, `insertar` y `buscar`. La tabla se crea sola: `insertar` y `buscar` ejecutan `CREATE TABLE IF NOT EXISTS` antes de trabajar, así que no hay que crearla a mano.
 - **`tests`**: pruebas unitarias del cálculo y de la base de datos.
 
 ## Funcionalidades
@@ -74,12 +77,11 @@ Si la tasa mensual es `0`, el cálculo divide el valor financiado entre el núme
 
 Las rutas están en `src/view/web/vista_hipoteca.py`. En local, la aplicación queda en `http://127.0.0.1:5000`:
 
-- **Inicio (`/`)**: menú principal con el formulario (valor del inmueble, porcentaje a financiar en %, tasa de interés mensual en %, plazo en meses y nombre opcional), el enlace **Ver consultas** y, al final, el enlace **«haga clic aquí para crear las tablas»** para el primer uso con una base de datos nueva.
+- **Inicio (`/`)**: menú principal con el formulario (valor del inmueble, porcentaje a financiar en %, tasa de interés mensual en %, plazo en meses y nombre opcional) y el enlace **Ver consultas**.
 - **Resultado (`/calcular_cuota`)**: al calcular, la consulta (datos y resultado) se guarda en la base de datos y se muestra "Consulta guardada exitosamente" con toda la información.
 - **Consultas (`/consultas`)**: historial de todas las consultas guardadas, con una barra de búsqueda por nombre.
-- **Crear tablas (`/crear_tablas`)**: crea la tabla `consultas` en la base de datos. Solo crea: si la tabla ya existe, no la modifica ni borra datos.
 
-La web no ofrece una opción para borrar la tabla, porque eliminar todas las consultas es una acción peligrosa que el usuario no necesita. El método `borrar_tabla` del controlador se conserva únicamente para las pruebas.
+No hay que crear las tablas a mano: si no existen, se crean solas en la primera consulta o búsqueda. La web tampoco ofrece una opción para borrar la tabla, porque eliminar todas las consultas es una acción peligrosa que el usuario no necesita. El método `borrar_tabla` del controlador se conserva únicamente para las pruebas.
 
 ### Pruebas
 
@@ -146,10 +148,8 @@ Se abre una ventana con los mismos campos y el botón **Calcular**. Los errores 
    ```
 
 3. Abra `http://127.0.0.1:5000` en el navegador.
-4. **Primer uso:** como la base de datos está en blanco, todavía no existe la tabla. En la página de inicio, en la sección **Uso por primera vez**, haga clic en **«haga clic aquí para crear las tablas»**. Debe ver el mensaje "Tablas listas".
-5. Vuelva al inicio, escriba los datos y pulse **Calcular**; luego puede ver y buscar sus consultas en **Ver consultas**.
-
-Si ya existen las tablas, no necesita repetir el paso 4; hacerlo no borra nada.
+4. Escriba los datos y pulse **Calcular**. No necesita crear las tablas: la primera vez que se guarda o se busca una consulta, la tabla `consultas` se crea sola.
+5. Entre a **Ver consultas** para ver el historial y buscar por nombre.
 
 ### 5. Ejecutar las pruebas unitarias
 

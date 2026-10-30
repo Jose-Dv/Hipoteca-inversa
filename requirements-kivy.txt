@@ -1,0 +1,4 @@
+# Solo para la interfaz gráfica (src/view/interfaz_kivy.py).
+# Incluye las dependencias comunes del proyecto.
+-r requirements.txt
+kivy[base]>=2.3.0

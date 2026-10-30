@@ -38,8 +38,10 @@ Hipoteca-inversa/
 │   └── tests_consultas_controller.py  # Pruebas de insertar, buscar y eliminar (con BD)
 ├── app.py                           # Arranca la web y registra el Blueprint
 ├── .gitignore
+├── .python-version                  # Versión de Python que usa Render (3.12)
 ├── LICENSE
-├── requirements.txt                 # psycopg2-binary, Flask y Kivy
+├── requirements.txt                 # psycopg2-binary, Flask y gunicorn
+├── requirements-kivy.txt            # Lo anterior + Kivy (solo para la interfaz gráfica)
 ├── secret_config_sample.py          # Plantilla de la configuración de la BD
 └── README.md
 ```
@@ -51,7 +53,7 @@ Hipoteca-inversa/
   - La web usa un **Blueprint de Flask** llamado `vista`, que reúne las rutas de la aplicación. `app.py`, en la raíz, solo crea la aplicación Flask y registra ese Blueprint; Flask y los servidores de publicación esperan encontrar `app.py` en la raíz.
 - **`controller`**: intermediario entre las vistas y el modelo o la base de datos.
   - `hipoteca_controller.py` convierte el texto ingresado en los tipos del modelo (tolerando formatos como `1,2` o `300.000.000`) y traduce cualquier error a un mensaje legible mediante `ErrorCalculoHipoteca`. Lo usan la consola y Kivy.
-  - `consultas_controller.py` es el único que habla con PostgreSQL (con `psycopg2`). Expone `crear_tabla`, `borrar_tabla`, `insertar`, `buscar` y `eliminar`. La tabla se crea sola: `insertar` y `buscar` ejecutan `CREATE TABLE IF NOT EXISTS` antes de trabajar, así que no hay que crearla a mano.
+  - `consultas_controller.py` es el único que habla con PostgreSQL (con `psycopg2`). Expone `crear_tabla`, `borrar_tabla`, `insertar`, `buscar` y `eliminar`. La tabla se crea sola: `insertar` y `buscar` ejecutan `CREATE TABLE IF NOT EXISTS` antes de trabajar, así que no hay que crearla a mano. Para conectarse usa `secret_config.py` si existe (en local) y, si no, las variables de entorno `PGHOST`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` y `PGPORT` (en el servidor).
 - **`tests`**: pruebas unitarias del cálculo y de la base de datos.
 
 ## Funcionalidades
@@ -95,10 +97,16 @@ Cada consulta se identifica con un UUID generado en Python (`uuid.uuid4()`), gua
 
 - Python 3.10 o superior
 - Una base de datos PostgreSQL (por ejemplo, un proyecto gratuito en [Neon](https://neon.com))
-- Paquetes de Python:
+- Paquetes de Python (consola, web, base de datos y pruebas):
 
   ```bash
   pip install -r requirements.txt
+  ```
+
+- Solo si va a usar la interfaz gráfica (Kivy), instale en cambio:
+
+  ```bash
+  pip install -r requirements-kivy.txt
   ```
 
 ## Configuración de la base de datos
@@ -109,6 +117,8 @@ Cada consulta se identifica con un UUID generado en Python (`uuid.uuid4()`), gua
    ```bash
    cp secret_config_sample.py secret_config.py
    ```
+
+3. En un servidor donde no existe `secret_config.py` (como Render), la aplicación lee los mismos datos de las variables de entorno `PGHOST`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` y, opcionalmente, `PGPORT` (por defecto 5432).
 
 > ⚠️ **Cuidado:** las pruebas de `tests_consultas_controller.py` **borran y recrean** la tabla `consultas`, perdiendo sus datos. Úselas con una base de desarrollo.
 
@@ -135,7 +145,7 @@ Pide el valor del inmueble, el porcentaje de desembolso, la tasa de interés men
 
 ### 3. Interfaz gráfica (Kivy)
 
-Desde la raíz del proyecto:
+Instale primero `requirements-kivy.txt` y, desde la raíz del proyecto, ejecute:
 
 ```bash
 python -m src.view.interfaz_kivy
@@ -178,6 +188,16 @@ Para ejecutar solo las pruebas del cálculo (no requieren base de datos):
 ```bash
 python -m unittest tests/tests_hipoteca_inversa.py
 ```
+
+### 6. Publicar la web en Render
+
+1. En Neon, abra la rama que usará la web publicada (por ejemplo `production`), pulse **Connect**, desactive *Connection pooling* y copie el host, la base, el usuario y la contraseña.
+2. En Render, cree un **Web Service** conectado a este repositorio, rama `main`.
+3. Configure: *Build Command* `pip install -r requirements.txt`, *Start Command* `gunicorn app:app` y el tipo de instancia **Free**.
+4. En *Environment Variables* agregue `PGHOST`, `PGDATABASE`, `PGUSER` y `PGPASSWORD` con los datos de Neon (y `PGPORT` solo si no usa el 5432).
+5. Pulse **Deploy**. La dirección pública de la aplicación aparece en el panel del servicio.
+
+Render usa el archivo `.python-version` para elegir la versión de Python. No suba nunca la contraseña al repositorio: va solo en las variables de entorno de Render.
 
 ## Autores
 

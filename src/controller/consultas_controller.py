@@ -1,9 +1,16 @@
 """Guarda, busca y elimina las consultas de hipoteca inversa en PostgreSQL."""
 
+import os
+
 import psycopg2
 
-import secret_config
 from model.consulta import Consulta
+
+try:
+    import secret_config
+except ImportError:
+    # En el servidor (Render) no existe secret_config.py: se usan variables de entorno.
+    secret_config = None
 
 CREAR_TABLA = """
 CREATE TABLE IF NOT EXISTS consultas (
@@ -38,12 +45,22 @@ ELIMINAR = "DELETE FROM consultas WHERE id = %s"
 
 
 def conectar():
+    """Con secret_config.py (local) o con variables de entorno (servidor)."""
+    if secret_config is not None:
+        return psycopg2.connect(
+            host=secret_config.PGHOST,
+            dbname=secret_config.PGDATABASE,
+            user=secret_config.PGUSER,
+            password=secret_config.PGPASSWORD,
+            port=secret_config.PGPORT,
+        )
     return psycopg2.connect(
-        host=secret_config.PGHOST,
-        dbname=secret_config.PGDATABASE,
-        user=secret_config.PGUSER,
-        password=secret_config.PGPASSWORD,
-        port=secret_config.PGPORT,
+        host=os.environ["PGHOST"],
+        dbname=os.environ["PGDATABASE"],
+        user=os.environ["PGUSER"],
+        password=os.environ["PGPASSWORD"],
+        port=os.environ.get("PGPORT", "5432"),
+        sslmode="require",
     )
 
 

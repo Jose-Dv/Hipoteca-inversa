@@ -23,7 +23,9 @@ Hipoteca-inversa/
 │       ├── console.py               # Interfaz de consola
 │       └── interfaz_kivy.py         # Interfaz gráfica con Kivy
 ├── templates/
-│   └── index.html                   # Página web: formulario, búsqueda e historial
+│   ├── index.html                   # Formulario para calcular una consulta
+│   ├── resultado.html               # Consulta guardada con su información
+│   └── consultas.html               # Historial, búsqueda y botón para borrar la tabla
 ├── tests/
 │   ├── __init__.py
 │   ├── tests_hipoteca_inversa.py    # Pruebas unitarias de la lógica de cálculo
@@ -39,7 +41,7 @@ Hipoteca-inversa/
 ### Descripción de la arquitectura
 
 - **`model`**: `logica_hipoteca_inversa.py` contiene la lógica de cálculo (validaciones, fórmulas financieras, reglas de negocio y excepciones propias). `consulta.py` define la clase `Consulta`: los datos ingresados, el resultado y el nombre opcional. Ninguno depende de cómo se muestren los datos.
-- **`view`**: la consola (`console.py`), la interfaz gráfica (`interfaz_kivy.py`) y la web (`app.py` con `templates/index.html`). Ninguna contiene lógica de negocio.
+- **`view`**: la consola (`console.py`), la interfaz gráfica (`interfaz_kivy.py`) y la web (`app.py` con las plantillas de `templates/`). Ninguna contiene lógica de negocio.
 - **`controller`**: intermediario entre las vistas y el modelo o la base de datos.
   - `hipoteca_controller.py` convierte el texto ingresado en los tipos del modelo (tolerando formatos como `1,2` o `300.000.000`) y traduce cualquier error a un mensaje legible mediante `ErrorCalculoHipoteca`. Lo usan la consola y Kivy.
   - `consultas_controller.py` es el único que habla con PostgreSQL (con `psycopg2`). Expone `crear_tabla`, `borrar_tabla`, `insertar` y `buscar`. La tabla se crea sola si no existe.
@@ -66,9 +68,13 @@ Si la tasa mensual es `0`, el cálculo divide el valor financiado entre el núme
 
 ### Aplicación web
 
-En `http://127.0.0.1:5000` hay un formulario con el valor del inmueble, el porcentaje a financiar (%), la tasa de interés mensual (%), el plazo en meses y un nombre opcional. Al calcular, la consulta (datos y resultado) se guarda en la base de datos. Debajo del formulario hay un historial con una barra de búsqueda por nombre.
+La aplicación tiene tres páginas, en `http://127.0.0.1:5000`:
 
-No hay que crear las tablas a mano: si no existen, se crean en la primera consulta.
+- **Inicio (`/`)**: formulario con el valor del inmueble, el porcentaje a financiar (%), la tasa de interés mensual (%), el plazo en meses y un nombre opcional.
+- **Resultado (`/calcular_cuota`)**: al calcular, la consulta (datos y resultado) se guarda en la base de datos y se muestra "Consulta guardada exitosamente" con toda la información.
+- **Consultas (`/consultas`)**: historial de todas las consultas guardadas, con una barra de búsqueda por nombre y un botón **Borrar tabla**.
+
+No hay que crear las tablas a mano: si no existen, se crean en la primera consulta o búsqueda (`consultas_controller.py` ejecuta `CREATE TABLE IF NOT EXISTS` antes de insertar y de buscar). El botón **Borrar tabla** elimina todas las consultas; la tabla se vuelve a crear sola.
 
 ### Pruebas
 
@@ -159,6 +165,13 @@ python -m unittest tests/tests_hipoteca_inversa.py
 ```
 
 ## Autores
+
+Autores originales del proyecto:
+
+- **Sebastian Velasquez**
+- **Jose Diaz**
+
+Aporte posterior:
 
 - **Pedro Hernandez**: interfaz gráfica con Kivy (`src/view/interfaz_kivy.py`) y el controlador compartido entre las vistas (`src/controller/hipoteca_controller.py`).
 

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Consultas</title>
+</head>
+<body>
+    <h1>Consultas guardadas</h1>
+
+    <form action="/consultas" method="GET">
+        <input type="text" name="buscar" value="{{ buscar }}" placeholder="Buscar por nombre">
+        <button type="submit">Buscar</button>
+    </form>
+
+    {% if consultas %}
+    <table border="1">
+        <tr>
+            <th>Nombre</th>
+            <th>Valor inmueble</th>
+            <th>Porcentaje (%)</th>
+            <th>Tasa mensual (%)</th>
+            <th>Plazo (meses)</th>
+            <th>Cuota mensual</th>
+            <th>Total abonos</th>
+            <th>Total intereses</th>
+        </tr>
+        {% for consulta in consultas %}
+        <tr>
+            <td>{{ consulta.nombre or "-" }}</td>
+            <td>{{ "{:,.2f}".format(consulta.valor_inmueble) }}</td>
+            <td>{{ "{:.2f}".format(consulta.porcentaje * 100) }}</td>
+            <td>{{ "{:.2f}".format(consulta.tasa_mensual * 100) }}</td>
+            <td>{{ consulta.plazo_meses }}</td>
+            <td>{{ "{:,.2f}".format(consulta.cuota_mensual) }}</td>
+            <td>{{ "{:,.2f}".format(consulta.total_abonos) }}</td>
+            <td>{{ "{:,.2f}".format(consulta.total_intereses) }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No hay consultas para mostrar.</p>
+    {% endif %}
+
+    <form action="/borrar_tabla" method="POST"
+          onsubmit="return confirm('¿Seguro que desea borrar la tabla y todas las consultas?');">
+        <button type="submit">Borrar tabla</button>
+    </form>
+
+    <p><a href="/">Volver al inicio</a></p>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Consulta guardada</title>
+</head>
+<body>
+    <h2>Consulta guardada exitosamente</h2>
+
+    <p>
+        Nombre: {{ consulta.nombre or "-" }}<br>
+        Valor del inmueble: {{ "{:,.2f}".format(consulta.valor_inmueble) }}<br>
+        Porcentaje a financiar: {{ "{:.2f}".format(consulta.porcentaje * 100) }} %<br>
+        Tasa de interés mensual: {{ "{:.2f}".format(consulta.tasa_mensual * 100) }} %<br>
+        Plazo: {{ consulta.plazo_meses }} meses<br>
+        Cuota mensual: {{ "{:,.2f}".format(consulta.cuota_mensual) }}<br>
+        Total abonos: {{ "{:,.2f}".format(consulta.total_abonos) }}<br>
+        Total intereses: {{ "{:,.2f}".format(consulta.total_intereses) }}
+    </p>
+
+    <a href="/">Nueva consulta</a> |
+    <a href="/consultas">Ver consultas</a>
+</body>
+</html>

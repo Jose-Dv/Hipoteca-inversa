@@ -4,20 +4,14 @@ Pide los datos del cálculo, se los entrega a `hipoteca_controller` y muestra
 el resultado o el mensaje de error. Los mismos controladores los usa la
 interfaz gráfica en Kivy (`interfaz_kivy.py`). Esta vista no contiene lógica
 de negocio ni de validación de formato.
+
+Ejecución, desde la raíz del proyecto: python src/view/console.py
 """
 
 import sys
-from pathlib import Path
+sys.path.append("src")
 
-# Permite ejecutar este archivo de cualquier forma: `python src/view/console.py`,
-# `python -m src.view.console`, o desde el botón "Run" de un editor (que
-# normalmente ejecuta el archivo de forma directa). En todos los casos se
-# agrega la raíz del proyecto a sys.path para que `import src...` funcione.
-_RAIZ_PROYECTO = Path(__file__).resolve().parents[2]
-if str(_RAIZ_PROYECTO) not in sys.path:
-    sys.path.insert(0, str(_RAIZ_PROYECTO))
-
-from src.controller import hipoteca_controller as controlador  # noqa: E402
+from controller import hipoteca_controller as controlador
 
 
 def pedir_texto(mensaje: str) -> str:

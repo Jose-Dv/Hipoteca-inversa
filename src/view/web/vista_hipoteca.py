@@ -1,6 +1,7 @@
-"""Rutas de la aplicación web: inicio, resultado, consultas y borrados."""
+import sys
+sys.path.append("src")
 
-from flask import Blueprint, redirect, render_template, request, url_for
+from flask import Blueprint, render_template, request
 
 from model.logica_hipoteca_inversa import (
     ParametrosHipoteca,
@@ -29,30 +30,20 @@ def calcular_cuota():
         tasa_mensual = float(request.form["tasa_mensual"]) / 100
         plazo_meses = int(request.form["plazo_meses"])
 
-        datos = ParametrosHipoteca(
-            valor_inmueble=valor_inmueble,
-            porcentaje=porcentaje,
-            tasa_mensual=tasa_mensual,
-            plazo_meses=plazo_meses,
-        )
+        datos = ParametrosHipoteca(valor_inmueble, porcentaje, tasa_mensual, plazo_meses)
         cuota, total_abonos, total_intereses = desembolso_mensual(datos)
 
-        consulta = Consulta(
-            nombre, valor_inmueble, porcentaje, tasa_mensual, plazo_meses,
-            cuota, total_abonos, total_intereses,
-        )
+        consulta = Consulta(nombre, valor_inmueble, porcentaje, tasa_mensual,
+                            plazo_meses, cuota, total_abonos, total_intereses)
         ConsultasController.insertar(consulta)
 
         return render_template("resultado.html", consulta=consulta)
     except HipotecaInversaError as error:
-        return f'<h3>Error de Validación</h3><p>{error}</p><a href="/">Volver</a>', 400
+        return render_template("error.html", mensaje=error)
     except ValueError:
-        return (
-            "<h3>Error</h3><p>Ingrese solo números en todos los campos.</p>"
-            '<a href="/">Volver</a>'
-        ), 400
+        return render_template("error.html", mensaje="Ingrese solo números en todos los campos.")
     except Exception as error:
-        return f'<h3>Error inesperado</h3><p>{error}</p><a href="/">Volver</a>', 500
+        return render_template("error.html", mensaje=f"Error inesperado: {error}")
 
 
 @vista.route("/consultas")
@@ -62,20 +53,16 @@ def ver_consultas():
     return render_template("consultas.html", consultas=consultas, buscar=nombre_buscado)
 
 
-@vista.route("/eliminar_consulta/<string:id_consulta>", methods=["POST"])
-def eliminar_consulta(id_consulta):
-    ConsultasController.eliminar(id_consulta)
-    return redirect(url_for("vista.ver_consultas"))
+@vista.route("/eliminar_consulta")
+def eliminar_consulta():
+    ConsultasController.eliminar(request.args["id"])
+    return ver_consultas()
 
 
-@vista.route("/borrar_tabla", methods=["POST"])
+@vista.route("/borrar_tabla")
 def borrar_tabla():
-    if request.form.get("confirmacion", "").strip() != PALABRA_CONFIRMACION:
-        return (
-            "<h3>No se borró nada</h3>"
-            f"<p>Para borrar la tabla debe escribir {PALABRA_CONFIRMACION}.</p>"
-            '<a href="/consultas">Volver</a>'
-        ), 400
-
+    if request.args["confirmacion"] != PALABRA_CONFIRMACION:
+        return render_template("error.html",
+                               mensaje=f"No se borró nada. Debe escribir {PALABRA_CONFIRMACION}.")
     ConsultasController.borrar_tabla()
-    return redirect(url_for("vista.ver_consultas"))
+    return ver_consultas()

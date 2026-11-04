@@ -49,6 +49,10 @@ Hipoteca-inversa/
 ├── doc/
 │   ├── EntrevistaJuanDavid.mp3      # Entrevista de levantamiento de requisitos
 │   └── CasosPrueba.xlsx             # Casos de prueba documentados
+├── sql/
+│   ├── crear-consultas.sql          # Crea la tabla consultas
+│   ├── borrar-consultas.sql         # Borra la tabla consultas
+│   └── insertar-datos-prueba.sql    # 3 consultas de ejemplo
 ├── src/
 │   ├── controller/
 │   │   ├── __init__.py
@@ -68,7 +72,8 @@ Hipoteca-inversa/
 ├── templates/
 │   ├── index.html                   # Inicio: formulario de cálculo
 │   ├── resultado.html               # Consulta guardada con su información
-│   └── consultas.html               # Historial, búsqueda y borrado
+│   ├── consultas.html               # Historial, búsqueda y borrado
+│   └── error.html                   # Mensaje de error de la web
 ├── tests/
 │   ├── __init__.py
 │   ├── tests_hipoteca_inversa.py    # Pruebas unitarias de la lógica de cálculo
@@ -92,6 +97,8 @@ Hipoteca-inversa/
   - `hipoteca_controller.py` convierte el texto ingresado en los tipos del modelo (tolerando formatos como `1,2` o `300.000.000`) y traduce cualquier error a un mensaje legible mediante `ErrorCalculoHipoteca`. Lo usan la consola y Kivy.
   - `consultas_controller.py` es el único que habla con PostgreSQL (con `psycopg2`). Expone `crear_tabla`, `borrar_tabla`, `insertar`, `buscar` y `eliminar`. La tabla se crea sola: `insertar` y `buscar` ejecutan `CREATE TABLE IF NOT EXISTS` antes de trabajar, así que no hay que crearla a mano. Para conectarse usa `secret_config.py` si existe (en local) y, si no, las variables de entorno `PGHOST`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` y `PGPORT` (en el servidor).
 - **`tests`**: pruebas unitarias del cálculo y de la base de datos.
+
+Todos los archivos Python agregan la carpeta `src` al `sys.path` (`sys.path.append("src")`), por eso se ejecutan desde la raíz del proyecto.
 
 ## Funcionalidades
 
@@ -117,8 +124,8 @@ Si la tasa mensual es `0`, el cálculo divide el valor financiado entre el núme
 Las rutas están en `src/view/web/vista_hipoteca.py`. En local, la aplicación queda en `http://127.0.0.1:5000`:
 
 - **Inicio (`/`)**: menú principal con el formulario (valor del inmueble, porcentaje a financiar en %, tasa de interés mensual en %, plazo en meses y nombre opcional) y el enlace **Ver consultas**.
-- **Resultado (`/calcular_cuota`)**: al calcular, la consulta (datos y resultado) se guarda en la base de datos y se muestra "Consulta guardada exitosamente" con toda la información.
-- **Consultas (`/consultas`)**: historial de todas las consultas guardadas, de la más reciente a la más antigua, con una barra de búsqueda por nombre y un botón **Eliminar** en cada fila (`/eliminar_consulta/<id>`), que pide confirmación.
+- **Resultado (`/calcular_cuota`)**: al calcular, la consulta (datos y resultado) se guarda en la base de datos y se muestra "Consulta guardada exitosamente" con toda la información. Es la única ruta que usa POST, para que guardar no ocurra solo por abrir una dirección.
+- **Consultas (`/consultas`)**: historial de todas las consultas guardadas, de la más reciente a la más antigua, con una barra de búsqueda por nombre y un enlace **Eliminar** en cada fila (`/eliminar_consulta?id=<id>`), que pide confirmación.
 - **Borrar tabla (`/borrar_tabla`)**: al final de la página de consultas, en la "Zona peligrosa". Elimina todas las consultas, y solo actúa si el usuario escribe la palabra `BORRAR`.
 
 No hay que crear las tablas a mano: si no existen, se crean solas en la primera consulta o búsqueda, también después de usar **Borrar tabla**.
@@ -155,13 +162,16 @@ Cada consulta se identifica con un UUID generado en Python (`uuid.uuid4()`), gua
    cp secret_config_sample.py secret_config.py
    ```
 
-3. En un servidor donde no existe `secret_config.py` (como Render), la aplicación lee los mismos datos de las variables de entorno `PGHOST`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` y, opcionalmente, `PGPORT` (por defecto 5432).
+3. Opcional: puede crear la tabla a mano ejecutando el contenido de `sql/crear-consultas.sql` en la consola SQL de Neon, o con `psql "<cadena de conexión>" -f sql/crear-consultas.sql`. `sql/borrar-consultas.sql` la elimina y `sql/insertar-datos-prueba.sql` agrega 3 consultas de ejemplo. No es obligatorio: la aplicación crea la tabla sola.
+4. En un servidor donde no existe `secret_config.py` (como Render), la aplicación lee los mismos datos de las variables de entorno `PGHOST`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` y, opcionalmente, `PGPORT` (por defecto 5432).
 
 > ⚠️ **Cuidado:** las pruebas de `tests_consultas_controller.py` **borran y recrean** la tabla `consultas`, perdiendo sus datos. Úselas con una base de desarrollo.
 
 > Si su base ya tenía una tabla `consultas` de una versión anterior (con `id` numérico), bórrela una vez: `CREATE TABLE IF NOT EXISTS` no cambia una tabla que ya existe.
 
 ## Cómo ejecutar el proyecto
+
+Todos los comandos se ejecutan desde la raíz del proyecto.
 
 ### 1. Clonar el repositorio
 
@@ -182,10 +192,10 @@ Pide el valor del inmueble, el porcentaje de desembolso, la tasa de interés men
 
 ### 3. Interfaz gráfica (Kivy)
 
-Instale primero `requirements-kivy.txt` y, desde la raíz del proyecto, ejecute:
+Instale primero `requirements-kivy.txt` y ejecute:
 
 ```bash
-python -m src.view.interfaz_kivy
+python src/view/interfaz_kivy.py
 ```
 
 Se abre una ventana con los mismos campos y el botón **Calcular**. Los errores se muestran en la misma ventana. No requiere base de datos.
@@ -305,12 +315,14 @@ La aplicación se usa igual en la web publicada y en local; solo cambia la direc
 | "la tasa mensual supera el máximo permitido (4%)" | La tasa mensual es mayor que el 4 % | Escribir una tasa de 4 o menos |
 | "el plazo no debe ser mayor a 240 meses" | El plazo excede los 20 años | Escribir un plazo de 240 o menos |
 | "el plazo debe estar entre 1 y 240 meses" | El plazo es 0 o negativo | Escribir un plazo de 1 a 240 |
+| "No se borró nada. Debe escribir BORRAR." | La palabra de confirmación no coincide | Escribir `BORRAR` en mayúsculas |
 | "Error inesperado" | Normalmente, un problema con la base de datos (conexión o configuración) | En local, revisar `secret_config.py`; en Render, revisar las variables de entorno |
 
 ### Tenga en cuenta
 
 - **Los datos son compartidos.** La aplicación no tiene usuarios: todas las personas que abran la misma dirección ven, buscan y pueden eliminar las mismas consultas. No escriba datos personales reales.
 - **Cada instalación local ve su propia base.** En local, las consultas que ve dependen de la base configurada en `secret_config.py`.
+- **Recargar el resultado.** Si recarga la página del resultado, el navegador pregunta si quiere reenviar el formulario; si acepta, la consulta se guarda otra vez.
 
 ## Autores
 

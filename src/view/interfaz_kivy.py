@@ -11,35 +11,27 @@ https://github.com/ProfeBill/hello-kivy:
 - ``Label`` para mostrar resultados y mensajes de error.
 
 Esta vista no contiene lógica de negocio ni de validación de formato:
-solo recoge los datos y se los entrega a `src.controller.hipoteca_controller`,
+solo recoge los datos y se los entrega a `controller.hipoteca_controller`,
 el mismo que usa la interfaz de consola (`console.py`), y muestra el
 resultado o el mensaje de error que este le devuelva.
 
 Requisitos:
-    pip install -r requirements.txt
+    pip install -r requirements-kivy.txt
 
-Ejecución: se puede lanzar de cualquier forma (`python interfaz_kivy.py`,
-`python src/view/interfaz_kivy.py`, `python -m src.view.interfaz_kivy`, o
-desde el botón "Run" de un editor) gracias al ajuste de sys.path incluido
-más abajo.
+Ejecución, desde la raíz del proyecto:
+    python src/view/interfaz_kivy.py
 """
 
 import sys
-from pathlib import Path
+sys.path.append("src")
 
-# Agrega la raíz del proyecto a sys.path para que `import src...` funcione
-# sin importar cómo se invoque este archivo (ver detalle en console.py).
-_RAIZ_PROYECTO = Path(__file__).resolve().parents[2]
-if str(_RAIZ_PROYECTO) not in sys.path:
-    sys.path.insert(0, str(_RAIZ_PROYECTO))
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
 
-from kivy.app import App  # noqa: E402
-from kivy.uix.boxlayout import BoxLayout  # noqa: E402
-from kivy.uix.button import Button  # noqa: E402
-from kivy.uix.label import Label  # noqa: E402
-from kivy.uix.textinput import TextInput  # noqa: E402
-
-from src.controller import hipoteca_controller as controlador  # noqa: E402
+from controller import hipoteca_controller as controlador
 
 
 def _fila_de_entrada(texto_etiqueta):

@@ -1,5 +1,8 @@
+import sys
+sys.path.append("src")
+
 import unittest
-from src.model import logica_hipoteca_inversa
+from model import logica_hipoteca_inversa
 
 
 class TestHipoteca(unittest.TestCase):

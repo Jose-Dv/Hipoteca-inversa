@@ -1,6 +1,8 @@
 """Guarda, busca y elimina las consultas de hipoteca inversa en PostgreSQL."""
 
 import os
+import sys
+sys.path.append("src")
 
 import psycopg2
 

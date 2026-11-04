@@ -1,7 +1,7 @@
 """Controlador de la hipoteca inversa.
 
 Coordina la comunicación entre las vistas (consola, Kivy) y el modelo de
-negocio (`src.model.logica_hipoteca_inversa`). Concentra en un solo lugar
+negocio (`model.logica_hipoteca_inversa`). Concentra en un solo lugar
 la lógica que, de otro modo, cada vista tendría que reimplementar:
 
 - Convertir el texto que escribe el usuario en los tipos de datos que
@@ -19,9 +19,12 @@ del modelo ni reimplementar el parseo de datos: todas llaman a
 resultado o el mensaje de error.
 """
 
+import sys
+sys.path.append("src")
+
 from dataclasses import dataclass
 
-from src.model import logica_hipoteca_inversa as logica
+from model import logica_hipoteca_inversa as logica
 
 
 class ErrorCalculoHipoteca(Exception):

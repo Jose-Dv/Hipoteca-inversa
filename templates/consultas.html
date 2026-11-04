@@ -2,9 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Consultas</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
 </head>
 <body>
     <h1>Consultas guardadas</h1>
@@ -15,7 +13,7 @@
     </form>
 
     {% if consultas %}
-    <table>
+    <table border="1">
         <tr>
             <th>Nombre</th>
             <th>Valor inmueble</th>
@@ -37,10 +35,10 @@
             <td>{{ "{:,.2f}".format(consulta.cuota_mensual) }}</td>
             <td>{{ "{:,.2f}".format(consulta.total_abonos) }}</td>
             <td>{{ "{:,.2f}".format(consulta.total_intereses) }}</td>
-            <td class="accion">
+            <td>
                 <form action="/eliminar_consulta/{{ consulta.id }}" method="POST"
                       onsubmit="return confirm('¿Eliminar esta consulta?');">
-                    <button type="submit" class="secundario">Eliminar</button>
+                    <button type="submit">Eliminar</button>
                 </form>
             </td>
         </tr>
@@ -52,9 +50,9 @@
 
     <h2>Zona peligrosa</h2>
     <form action="/borrar_tabla" method="POST">
-        <label>Para borrar todas las consultas escriba BORRAR:</label>
+        <label>Para borrar todas las consultas escriba BORRAR:</label><br>
         <input type="text" name="confirmacion" pattern="BORRAR" autocomplete="off" required>
-        <button type="submit" class="secundario">Borrar tabla</button>
+        <button type="submit">Borrar tabla</button>
     </form>
 
     <p><a href="/">Volver al inicio</a></p>

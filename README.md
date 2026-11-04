@@ -65,9 +65,6 @@ Hipoteca-inversa/
 │       └── web/
 │           ├── __init__.py
 │           └── vista_hipoteca.py    # Blueprint de Flask con las rutas de la web
-├── static/
-│   └── css/
-│       └── estilos.css              # Estilos de la web
 ├── templates/
 │   ├── index.html                   # Inicio: formulario de cálculo
 │   ├── resultado.html               # Consulta guardada con su información
@@ -89,7 +86,7 @@ Hipoteca-inversa/
 ### Descripción de la arquitectura
 
 - **`model`**: `logica_hipoteca_inversa.py` contiene la lógica de cálculo (validaciones, fórmulas financieras, reglas de negocio y excepciones propias). `consulta.py` define la clase `Consulta`: los datos ingresados, el resultado, el nombre opcional y un `id` único (UUID) que se genera al crear la consulta. Ninguno depende de cómo se muestren los datos.
-- **`view`**: la consola (`console.py`), la interfaz gráfica (`interfaz_kivy.py`) y la web (`web/vista_hipoteca.py` con las plantillas de `templates/` y los estilos de `static/css/`). Ninguna contiene lógica de negocio.
+- **`view`**: la consola (`console.py`), la interfaz gráfica (`interfaz_kivy.py`) y la web (`web/vista_hipoteca.py` con las plantillas de `templates/`). Ninguna contiene lógica de negocio.
   - La web usa un **Blueprint de Flask** llamado `vista`, que reúne las rutas de la aplicación. `app.py`, en la raíz, solo crea la aplicación Flask y registra ese Blueprint; Flask y los servidores de publicación esperan encontrar `app.py` en la raíz.
 - **`controller`**: intermediario entre las vistas y el modelo o la base de datos.
   - `hipoteca_controller.py` convierte el texto ingresado en los tipos del modelo (tolerando formatos como `1,2` o `300.000.000`) y traduce cualquier error a un mensaje legible mediante `ErrorCalculoHipoteca`. Lo usan la consola y Kivy.

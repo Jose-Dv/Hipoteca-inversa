@@ -7,7 +7,7 @@ Aplicación de consola en Python para simular el cálculo de una **hipoteca inve
 | Nombre | GitHub |
 |---|---|
 | Jhoan Rios | [@jhoan-rios](https://github.com/Jhoan-rios) |
-| José Berrío | [@JoseBerrioC](https://github.com/JoseBerrioC) |
+| José Berrío | [@andres-rosas](https://github.com/JoseBerrioC) |
  
 
 ## Estructura del proyecto

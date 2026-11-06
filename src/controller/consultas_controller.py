@@ -85,17 +85,26 @@ class ConsultasController:
         conexion.commit()
         conexion.close()
 
-    @staticmethod
-    def buscar(nombre: str = "") -> list[Consulta]:
-        """Busca por parte del nombre, sin distinguir mayúsculas. Sin nombre, trae todas."""
-        conexion = conectar()
-        cursor = conexion.cursor()
-        cursor.execute(CREAR_TABLA)
-        cursor.execute(BUSCAR, (f"%{nombre}%",))
-        filas = cursor.fetchall()
-        conexion.commit()
-        conexion.close()
-        return [Consulta(*fila) for fila in filas]
+@staticmethod
+def buscar(nombre: str = "") -> list[Consulta]:
+    """Busca por parte del nombre, sin distinguir mayúsculas. Sin nombre, trae todas."""
+    conexion = conectar()
+    cursor = conexion.cursor()
+    cursor.execute(CREAR_TABLA)
+    cursor.execute(BUSCAR, (f"%{nombre}%",))
+
+    filas = cursor.fetchall()
+
+    conexion.commit()
+    conexion.close()
+
+    consultas = []
+
+    for fila in filas:
+        consulta = Consulta(*fila)
+        consultas.append(consulta)
+
+    return consultas
 
     @staticmethod
     def eliminar(id_consulta: str) -> None:

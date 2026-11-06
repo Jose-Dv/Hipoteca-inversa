@@ -1,18 +1,13 @@
 """Guarda, busca y elimina las consultas de hipoteca inversa en PostgreSQL."""
 
-import os
 import sys
 sys.path.append("src")
 
 import psycopg2
+import secret_config
 
 from model.consulta import Consulta
 
-try:
-    import secret_config
-except ImportError:
-    # En el servidor (Render) no existe secret_config.py: se usan variables de entorno.
-    secret_config = None
 
 CREAR_TABLA = """
 CREATE TABLE IF NOT EXISTS consultas (
@@ -55,8 +50,9 @@ def conectar():
         port=secret_config.PGPORT,
     )
 
+
 class ConsultasController:
-    """Operaciones con la tabla ``consultas``. La tabla se crea sola si no existe."""
+    """Operaciones con la tabla consultas. La tabla se crea sola si no existe."""
 
     @staticmethod
     def crear_tabla() -> None:
@@ -78,37 +74,43 @@ class ConsultasController:
         cursor = conexion.cursor()
         cursor.execute(CREAR_TABLA)
         cursor.execute(INSERTAR, (
-            consulta.id, consulta.nombre, consulta.valor_inmueble,
-            consulta.porcentaje, consulta.tasa_mensual, consulta.plazo_meses,
-            consulta.cuota_mensual, consulta.total_abonos, consulta.total_intereses,
+            consulta.id,
+            consulta.nombre,
+            consulta.valor_inmueble,
+            consulta.porcentaje,
+            consulta.tasa_mensual,
+            consulta.plazo_meses,
+            consulta.cuota_mensual,
+            consulta.total_abonos,
+            consulta.total_intereses,
         ))
         conexion.commit()
         conexion.close()
 
-@staticmethod
-def buscar(nombre: str = "") -> list[Consulta]:
-    """Busca por parte del nombre, sin distinguir mayúsculas. Sin nombre, trae todas."""
-    conexion = conectar()
-    cursor = conexion.cursor()
-    cursor.execute(CREAR_TABLA)
-    cursor.execute(BUSCAR, (f"%{nombre}%",))
+    @staticmethod
+    def buscar(nombre: str = "") -> list[Consulta]:
+        """Busca por parte del nombre, sin distinguir mayúsculas. Sin nombre, trae todas."""
+        conexion = conectar()
+        cursor = conexion.cursor()
+        cursor.execute(CREAR_TABLA)
+        cursor.execute(BUSCAR, (f"%{nombre}%",))
 
-    filas = cursor.fetchall()
+        filas = cursor.fetchall()
 
-    conexion.commit()
-    conexion.close()
+        conexion.commit()
+        conexion.close()
 
-    consultas = []
+        consultas = []
 
-    for fila in filas:
-        consulta = Consulta(*fila)
-        consultas.append(consulta)
+        for fila in filas:
+            consulta = Consulta(*fila)
+            consultas.append(consulta)
 
-    return consultas
+        return consultas
 
     @staticmethod
     def eliminar(id_consulta: str) -> None:
-        """Elimina una sola consulta, identificada por su id (UUID en texto)."""
+        """Elimina una sola consulta, identificada por su id."""
         conexion = conectar()
         conexion.cursor().execute(ELIMINAR, (id_consulta,))
         conexion.commit()

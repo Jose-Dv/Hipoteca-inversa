@@ -47,24 +47,13 @@ ELIMINAR = "DELETE FROM consultas WHERE id = %s"
 
 
 def conectar():
-    """Con secret_config.py (local) o con variables de entorno (servidor)."""
-    if secret_config is not None:
-        return psycopg2.connect(
-            host=secret_config.PGHOST,
-            dbname=secret_config.PGDATABASE,
-            user=secret_config.PGUSER,
-            password=secret_config.PGPASSWORD,
-            port=secret_config.PGPORT,
-        )
     return psycopg2.connect(
-        host=os.environ["PGHOST"],
-        dbname=os.environ["PGDATABASE"],
-        user=os.environ["PGUSER"],
-        password=os.environ["PGPASSWORD"],
-        port=os.environ.get("PGPORT", "5432"),
-        sslmode="require",
+        host=secret_config.PGHOST,
+        dbname=secret_config.PGDATABASE,
+        user=secret_config.PGUSER,
+        password=secret_config.PGPASSWORD,
+        port=secret_config.PGPORT,
     )
-
 
 class ConsultasController:
     """Operaciones con la tabla ``consultas``. La tabla se crea sola si no existe."""
